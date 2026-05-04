@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#eceff1"/>
+  <!-- 雪花 -->
+  <circle cx="70" cy="80" r="4" fill="#fff"/>
+  <circle cx="150" cy="60" r="3.5" fill="#fff"/>
+  <circle cx="230" cy="90" r="4" fill="#fff"/>
+  <circle cx="310" cy="70" r="3.5" fill="#fff"/>
+  <circle cx="50" cy="180" r="3" fill="#fff"/>
+  <circle cx="180" cy="200" r="4" fill="#fff"/>
+  <circle cx="330" cy="160" r="3.5" fill="#fff"/>
+  <circle cx="100" cy="280" r="3.5" fill="#fff"/>
+  <circle cx="270" cy="300" r="3" fill="#fff"/>
+  <!-- 火炉 -->
+  <rect x="165" y="350" width="70" height="45" fill="#5d4037" rx="4"/>
+  <rect x="175" y="360" width="50" height="25" fill="#3e2723" rx="2"/>
+  <!-- 火焰 -->
+  <ellipse cx="185" cy="375" rx="8" ry="12" fill="#ff5722" opacity="0.8"/>
+  <ellipse cx="200" cy="375" rx="8" ry="12" fill="#ff5722" opacity="0.8"/>
+  <ellipse cx="215" cy="375" rx="8" ry="12" fill="#ff5722" opacity="0.8"/>
+  <ellipse cx="190" cy="368" rx="5" ry="7" fill="#ff9800" opacity="0.9"/>
+  <ellipse cx="205" cy="368" rx="5" ry="7" fill="#ff9800" opacity="0.9"/>
+  <!-- 酒 -->
+  <ellipse cx="300" cy="375" rx="15" ry="22" fill="#ffcc80"/>
+  <ellipse cx="300" cy="370" rx="10" ry="5" fill="#ffb74d"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#e8f5e9"/>
+  <!-- 树木 -->
+  <rect x="100" y="250" width="25" height="250" fill="#795548" opacity="0.4"/>
+  <rect x="200" y="200" width="30" height="300" fill="#795548" opacity="0.45"/>
+  <rect x="300" y="260" width="22" height="240" fill="#795548" opacity="0.35"/>
+  <!-- 树叶 -->
+  <ellipse cx="112" cy="230" rx="30" ry="40" fill="#4caf50" opacity="0.3"/>
+  <ellipse cx="215" cy="180" rx="35" ry="50" fill="#66bb6a" opacity="0.35"/>
+  <ellipse cx="311" cy="240" rx="28" ry="35" fill="#4caf50" opacity="0.3"/>
+</svg>

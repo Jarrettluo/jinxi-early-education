@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#eceff1"/>
+  <!-- 银发/秋霜 -->
+  <circle cx="150" cy="150" r="60" fill="#cfd8dc" opacity="0.4"/>
+  <circle cx="280" cy="200" r="50" fill="#b0bec5" opacity="0.3"/>
+  <!-- 明月镜 -->
+  <ellipse cx="200" cy="350" rx="70" ry="70" fill="#eceff1" stroke="#90a4ae" stroke-width="3"/>
+  <!-- 反射老人 -->
+  <circle cx="160" cy="350" r="8" fill="#78909c"/>
+  <circle cx="200" cy="350" r="10" fill="#78909c"/>
+  <circle cx="240" cy="350" r="8" fill="#78909c"/>
+</svg>

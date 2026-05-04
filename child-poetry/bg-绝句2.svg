@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#e8f5e9"/>
+  <!-- 翠柳 -->
+  <path d="M0 180 Q80 160 150 180 Q200 150 280 180 Q350 160 400 180" fill="none" stroke="#66bb6a" stroke-width="4" opacity="0.5"/>
+  <path d="M0 220 Q100 200 180 220" fill="none" stroke="#81c784" stroke-width="3" opacity="0.4"/>
+  <!-- 黄鹂 -->
+  <ellipse cx="140" cy="260" rx="25" ry="18" fill="#ffd54f"/>
+  <circle cx="132" cy="250" r="12" fill="#ffd54f"/>
+  <circle cx="128" cy="248" r="2.5" fill="#333"/>
+  <polygon points="142,250 155,245 142,255" fill="#ff9800"/>
+  <path d="M125 265 Q105 285 95 305" fill="none" stroke="#ffd54f" stroke-width="8"/>
+  <!-- 白鹭 -->
+  <ellipse cx="260" cy="320" rx="22" ry="14" fill="#fff"/>
+  <circle cx="254" cy="308" r="11" fill="#fff"/>
+  <polygon points="265,308 280,302 265,315" fill="#ff9800"/>
+  <path d="M248 328 Q260 370 280 360" fill="none" stroke="#fff" stroke-width="3"/>
+  <path d="M255 328 Q240 380 265 390" fill="none" stroke="#fff" stroke-width="3"/>
+  <!-- 西岭雪 -->
+  <path d="M50 100 L100 50 L150 80 L200 40 L250 70 L300 30 L350 60 L400 20 L400 150 L50 150 Z" fill="#fff" opacity="0.85"/>
+</svg>

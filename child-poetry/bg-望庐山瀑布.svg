@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#e3f2fd"/>
+  <!-- 香炉峰 -->
+  <path d="M100 500 L150 200 L200 150 L250 200 L300 500 Z" fill="#90a4ae" opacity="0.3"/>
+  <!-- 瀑布 -->
+  <path d="M170 180 Q180 250 175 350 Q170 400 180 500" stroke="#42a5f5" stroke-width="20" fill="none" opacity="0.6"/>
+  <path d="M190 180 Q200 250 195 350 Q190 420 200 500" stroke="#64b5f6" stroke-width="15" fill="none" opacity="0.5"/>
+  <path d="M210 180 Q220 260 215 360 Q210 440 220 500" stroke="#42a5f5" stroke-width="12" fill="none" opacity="0.4"/>
+  <!-- 水花 -->
+  <circle cx="170" cy="400" r="5" fill="#90caf9" opacity="0.5"/>
+  <circle cx="190" cy="380" r="4" fill="#90caf9" opacity="0.4"/>
+  <circle cx="200" cy="420" r="3" fill="#90caf9" opacity="0.3"/>
+</svg>

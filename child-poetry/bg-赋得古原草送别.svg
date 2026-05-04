@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <!-- 草原绿 -->
+  <rect width="400" height="600" fill="#e8f5e9"/>
+  <!-- 草原层次 -->
+  <ellipse cx="200" cy="350" rx="200" ry="150" fill="#81c784" opacity="0.3"/>
+  <ellipse cx="200" cy="400" rx="200" ry="120" fill="#66bb6a" opacity="0.25"/>
+  <!-- 野火 -->
+  <path d="M100 320 Q120 250 140 320 Q160 220 180 300 Q200 180 220 280 Q240 200 260 300 Q280 220 300 320" fill="#ff5722" opacity="0.6"/>
+  <path d="M130 330 Q150 280 170 330 Q190 260 210 320 Q230 240 250 320 Q270 260 290 330" fill="#ff9800" opacity="0.5"/>
+  <!-- 新芽 -->
+  <circle cx="120" cy="450" r="8" fill="#4caf50" opacity="0.5"/>
+  <circle cx="180" cy="460" r="6" fill="#66bb6a" opacity="0.5"/>
+  <circle cx="250" cy="455" r="7" fill="#4caf50" opacity="0.5"/>
+  <circle cx="310" cy="465" r="5" fill="#66bb6a" opacity="0.5"/>
+</svg>

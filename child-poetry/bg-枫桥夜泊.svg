@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#fff3e0"/>
+  <!-- 枫叶 -->
+  <circle cx="100" cy="150" r="15" fill="#ff5722" opacity="0.7"/>
+  <circle cx="180" cy="120" r="18" fill="#ff5722" opacity="0.8"/>
+  <circle cx="280" cy="140" r="15" fill="#ff7043" opacity="0.7"/>
+  <circle cx="350" cy="180" r="12" fill="#ff5722" opacity="0.6"/>
+  <circle cx="80" cy="250" r="14" fill="#ff7043" opacity="0.7"/>
+  <circle cx="200" cy="220" r="16" fill="#ff5722" opacity="0.8"/>
+  <!-- 渔火 -->
+  <circle cx="150" cy="400" r="8" fill="#ffeb3b"/>
+  <circle cx="180" cy="420" r="6" fill="#ffeb3b"/>
+  <circle cx="250" cy="410" r="7" fill="#ffeb3b"/>
+  <!-- 寒山寺钟声波纹 -->
+  <circle cx="300" cy="500" r="30" stroke="#ff9800" stroke-width="2" fill="none" opacity="0.3"/>
+  <circle cx="300" cy="500" r="50" stroke="#ff9800" stroke-width="2" fill="none" opacity="0.2"/>
+</svg>

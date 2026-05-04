@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#e8f5e9"/>
+  <!-- 柳枝 -->
+  <path d="M60 350 Q80 300 100 250 Q110 200 90 150 Q80 120 100 80" fill="none" stroke="#81c784" stroke-width="4"/>
+  <path d="M340 380 Q320 320 340 270 Q350 220 330 170 Q320 140 340 100" fill="none" stroke="#81c784" stroke-width="4"/>
+  <path d="M80 320 Q100 300 120 280" fill="none" stroke="#66bb6a" stroke-width="3"/>
+  <path d="M100 290 Q120 270 140 260" fill="none" stroke="#66bb6a" stroke-width="3"/>
+  <path d="M320 350 Q300 330 280 310" fill="none" stroke="#66bb6a" stroke-width="3"/>
+  <path d="M340 310 Q320 290 300 280" fill="none" stroke="#66bb6a" stroke-width="3"/>
+  <!-- 折柳送别 -->
+  <path d="M190 420 L210 390" stroke="#4caf50" stroke-width="5"/>
+  <path d="M190 420 L170 400" stroke="#4caf50" stroke-width="4"/>
+  <path d="M210 390 L230 370" stroke="#4caf50" stroke-width="4"/>
+</svg>

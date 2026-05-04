@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
+  <!-- 深夜蓝背景 -->
+  <rect width="400" height="600" fill="#1a237e"/>
+  
+  <!-- 月亮 -->
+  <circle cx="320" cy="120" r="45" fill="#fffde7" opacity="0.9"/>
+  <circle cx="320" cy="120" r="38" fill="#fff59d" opacity="0.6"/>
+  
+  <!-- 月光光晕 -->
+  <circle cx="320" cy="120" r="80" fill="none" stroke="#fff59d" stroke-width="30" opacity="0.15"/>
+  
+  <!-- 星星 -->
+  <circle cx="80" cy="80" r="2" fill="#fff" opacity="0.8"/>
+  <circle cx="150" cy="60" r="1.5" fill="#fff" opacity="0.6"/>
+  <circle cx="250" cy="90" r="2" fill="#fff" opacity="0.7"/>
+  <circle cx="50" cy="150" r="1.5" fill="#fff" opacity="0.5"/>
+  <circle cx="350" cy="200" r="2" fill="#fff" opacity="0.6"/>
+  <circle cx="100" cy="200" r="1" fill="#fff" opacity="0.4"/>
+  
+  <!-- 地面/台阶 -->
+  <rect x="0" y="480" width="400" height="120" fill="#283e51" opacity="0.6"/>
+  <rect x="0" y="470" width="400" height="10" fill="#3d5a73" opacity="0.4"/>
+  
+  <!-- 淡淡的霜/月光洒在地上的效果 -->
+  <rect x="0" y="480" width="400" height="120" fill="url(#moonlight)" opacity="0.1"/>
+  
+  <defs>
+    <radialGradient id="moonlight" cx="70%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#1a237e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

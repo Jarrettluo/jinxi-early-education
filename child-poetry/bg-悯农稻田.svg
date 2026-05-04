@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#e8f5e9"/>
+  <!-- 稻田 -->
+  <ellipse cx="200" cy="380" rx="180" ry="140" fill="#4caf50" opacity="0.35"/>
+  <!-- 稻穗 -->
+  <path d="M100 340 L110 300 L120 340" stroke="#66bb6a" stroke-width="3" fill="none"/>
+  <path d="M180 330 L190 280 L200 330" stroke="#66bb6a" stroke-width="3" fill="none"/>
+  <path d="M260 340 L270 290 L280 340" stroke="#66bb6a" stroke-width="3" fill="none"/>
+  <path d="M140 380 L145 350 L150 380" stroke="#66bb6a" stroke-width="3" fill="none"/>
+  <path d="M220 370 L225 340 L230 370" stroke="#66bb6a" stroke-width="3" fill="none"/>
+</svg>

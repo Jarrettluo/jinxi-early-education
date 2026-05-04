@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+  <rect width="400" height="600" fill="#eceff1"/>
+  <!-- 银色月光 -->
+  <circle cx="200" cy="120" r="60" fill="#cfd8dc" opacity="0.3"/>
+  <circle cx="200" cy="120" r="45" fill="#eceff1" opacity="0.15"/>
+  <!-- 明月镜 -->
+  <circle cx="200" cy="320" r="80" fill="#eceff1" stroke="#90a4ae" stroke-width="3"/>
+  <circle cx="200" cy="320" r="65" fill="#eceff1" stroke="#b0bec5" stroke-width="2"/>
+  <!-- 老人反射 -->
+  <circle cx="165" cy="320" r="10" fill="#607d8b"/>
+  <circle cx="200" cy="320" r="12" fill="#78909c"/>
+  <circle cx="235" cy="320" r="10" fill="#607d8b"/>
+  <!-- 白发 -->
+  <path d="M180 280 Q170 250 185 220" stroke="#b0bec5" stroke-width="3" fill="none"/>
+  <path d="M200 270 Q195 230 200 200" stroke="#cfd8dc" stroke-width="3" fill="none"/>
+  <path d="M220 280 Q225 250 215 220" stroke="#b0bec5" stroke-width="3" fill="none"/>
+</svg>

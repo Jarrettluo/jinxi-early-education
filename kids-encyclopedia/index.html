@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>亲子百科</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+--bg-1: #fdf6e3; --bg-2: #fef5f5; --bg-3: #f5f9ff; --bg-4: #f0fff0;
+--bg-5: #fff8f0; --bg-6: #f0f5ff; --bg-7: #fff0f5; --bg-8: #f5fff8;
+--bg-9: #fff5f0; --bg-10: #f8f5ff;
+--text-primary: #2c1810; --text-secondary: #6b5344; --accent: #c41e3a;
+--top-bar-bg: rgba(255,255,255,0.95);
+}
+html, body { height: 100%; }
+body { font-family: 'Noto Serif SC', 'Songti SC', serif; color: var(--text-primary); background: #fdf6e3; overflow: hidden; }
+.top-bar {
+position: fixed; top: 0; left: 0; right: 0; height: 56px;
+padding: 0 16px; padding-top: env(safe-area-inset-top, 10px);
+display: flex; justify-content: space-between; align-items: center;
+background: var(--top-bar-bg); backdrop-filter: blur(10px); z-index: 100;
+box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.app-name { font-family: 'ZCOOL XiaoWei', serif; font-size: 17px; color: var(--accent); font-weight: bold; cursor: pointer; }
+.page-num { font-size: 13px; color: var(--text-secondary); cursor: pointer; padding: 6px 12px; border-radius: 8px; }
+.page-num:active { background: rgba(0,0,0,0.05); }
+.top-right { display: flex; align-items: center; gap: 6px; }
+.tool-btn { padding: 6px 12px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-size: 13px; color: var(--text-secondary); }
+.tool-btn:active { background: rgba(0,0,0,0.05); }
+.tool-btn.liked { color: #e74c3c; }
+.category-bar {
+position: fixed; top: 56px; left: 0; right: 0;
+display: flex; overflow-x: auto;
+background: var(--top-bar-bg);
+border-bottom: 1px solid rgba(0,0,0,0.05);
+z-index: 90; -webkit-overflow-scrolling: touch;
+}
+.category-bar::-webkit-scrollbar { display: none; }
+.category-tab { padding: 12px 16px; font-size: 14px; white-space: nowrap; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; }
+.category-tab:active { background: rgba(0,0,0,0.03); }
+.category-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.cards-wrapper {
+position: fixed; top: 108px; left: 0; right: 0; bottom: 0;
+overflow-x: auto; overflow-y: hidden;
+display: flex; scroll-snap-type: x mandatory;
+-webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+}
+.story-card {
+min-width: 100%; height: 100%;
+scroll-snap-align: center;
+padding: 20px; overflow-y: auto;
+display: flex; flex-direction: column; gap: 16px;
+scroll-snap-stop: always;
+}
+.chapter-title { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+.story-title { font-size: 24px; font-weight: 700; line-height: 1.4; text-align: center; word-wrap: break-word; }
+.story-content { font-size: 17px; line-height: 2.2; text-align: justify; word-wrap: break-word; white-space: pre-line; text-indent: 2em; }
+.loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--text-secondary); }
+.swipe-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--text-secondary); opacity: 0.5; }
+.toc-modal {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+z-index: 200; opacity: 0; visibility: hidden;
+}
+.toc-modal.show { opacity: 1; visibility: visible; }
+.toc-box { background: #fff; padding: 16px; border-radius: 16px; width: 90%; max-width: 360px; max-height: 80%; display: flex; flex-direction: column; }
+.toc-box h3 { font-size: 16px; margin-bottom: 12px; text-align: center; }
+.toc-search { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; margin-bottom: 12px; }
+.toc-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.toc-item { padding: 10px 12px; font-size: 14px; background: #f5f5f5; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; }
+.toc-item:active { background: rgba(0,0,0,0.1); }
+.toc-item .num { color: var(--text-secondary); font-size: 12px; }
+.toc-item.current { background: var(--accent); color: #fff; }
+.toc-item.current .num { color: #fff; }
+.toc-close { margin-top: 12px; padding: 12px; border: none; border-radius: 8px; background: #f0f0f0; font-size: 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+<div class="app-name" id="appName">亲子百科</div>
+<div class="page-num" id="pageNum">1/30</div>
+<div class="top-right">
+<button class="tool-btn" id="likeBtn">收藏</button>
+<button class="tool-btn" id="playBtn">朗读</button>
+</div>
+</div>
+<div class="category-bar" id="categoryBar"></div>
+<div class="cards-wrapper" id="cardsWrapper">
+<div class="story-card"><div class="loading">加载中...</div></div>
+</div>
+<div class="swipe-hint">左右滑动切换</div>
+<div class="toc-modal" id="tocModal">
+<div class="toc-box">
+<h3>全部目录</h3>
+<input type="text" class="toc-search" id="tocSearch" placeholder="搜索...">
+<div class="toc-list" id="tocList"></div>
+<button class="toc-close" id="tocClose">关闭</button>
+</div>
+</div>
+<script>
+var allData = [];
+var filteredData = [];
+var currentIndex = 0;
+var currentCategory = '全部';
+var isPlaying = false;
+var likedStories = new Set();
+var cardsWrapper = document.getElementById('cardsWrapper');
+var pageNum = document.getElementById('pageNum');
+var categoryBar = document.getElementById('categoryBar');
+var tocModal = document.getElementById('tocModal');
+var tocList = document.getElementById('tocList');
+var tocSearch = document.getElementById('tocSearch');
+var likeBtn = document.getElementById('likeBtn');
+var playBtn = document.getElementById('playBtn');
+function loadData() {
+fetch('stories_0.json').then(function(res) { return res.json(); }).then(function(data) {
+allData = data;
+init();
+}).catch(function(e) {
+cardsWrapper.innerHTML = '<div class="story-card"><div class="loading">加载失败</div></div>';
+});
+}
+function init() {
+var saved = localStorage.getItem('lastPosition');
+if (saved) currentIndex = parseInt(saved) || 0;
+var savedLikes = localStorage.getItem('likedStories');
+if (savedLikes) likedStories = new Set(JSON.parse(savedLikes));
+renderCategories();
+filterByCategory('全部');
+bindEvents();
+}
+function renderCategories() {
+var cats = allData.map(function(s) { return s.category; });
+var uniqueCats = ['全部'].concat(Array.from(new Set(cats)));
+currentCategory = uniqueCats[0];
+categoryBar.innerHTML = uniqueCats.map(function(cat) {
+var isActive = cat === currentCategory ? 'active' : '';
+return '<div class="category-tab ' + isActive + '" data-cat="' + cat + '">' + cat + '</div>';
+}).join('');
+categoryBar.querySelectorAll('.category-tab').forEach(function(el) {
+el.addEventListener('click', function() {
+filterByCategory(el.getAttribute('data-cat'));
+});
+});
+}
+function filterByCategory(cat) {
+currentCategory = cat;
+if (cat === '' || cat === '全部') {
+filteredData = allData;
+} else {
+filteredData = allData.filter(function(s) { return s.category === cat; });
+}
+currentIndex = 0;
+categoryBar.querySelectorAll('.category-tab').forEach(function(el) {
+var isActive = el.getAttribute('data-cat') === cat;
+el.classList.toggle('active', isActive);
+});
+renderCards();
+}
+function renderCards() {
+cardsWrapper.innerHTML = filteredData.map(function(story, i) {
+return '<div class="story-card">' +
+'<div class="chapter-title">' + story.category + '</div>' +
+'<div class="story-title">' + story.title + '</div>' +
+'<div class="story-content">' + story.content + '</div>' +
+'</div>';
+}).join('');
+setTimeout(function() {
+var cardWidth = cardsWrapper.offsetWidth;
+cardsWrapper.scrollTo({ left: currentIndex * cardWidth, behavior: 'instant' });
+}, 100);
+var globalIdx = allData.findIndex(function(s) { return s.title === filteredData[currentIndex].title; });
+pageNum.textContent = (currentIndex + 1) + '/' + filteredData.length;
+updateLikedUI(globalIdx);
+localStorage.setItem('lastPosition', globalIdx);
+}
+function renderTocList(filter) {
+var filterLower = (filter || '').toLowerCase();
+var list = filteredData.filter(function(s, i) {
+if (!filterLower) return true;
+return s.title.toLowerCase().includes(filterLower);
+});
+tocList.innerHTML = list.map(function(s, i) {
+var realIdx = filteredData.findIndex(function(x) { return x.title === s.title; });
+var isCurrent = realIdx === currentIndex;
+return '<div class="toc-item' + (isCurrent ? ' current' : '') + '" data-idx="' + realIdx + '">' +
+'<span>' + s.title + '</span>' +
+'<span class="num">' + (realIdx + 1) + '</span>' +
+'</div>';
+}).join('');
+tocList.querySelectorAll('.toc-item').forEach(function(el) {
+el.addEventListener('click', function() {
+currentIndex = parseInt(el.getAttribute('data-idx'));
+var cardWidth = cardsWrapper.offsetWidth;
+cardsWrapper.scrollTo({ left: currentIndex * cardWidth, behavior: 'smooth' });
+updatePageNum();
+tocModal.classList.remove('show');
+});
+});
+}
+function updatePageNum() {
+pageNum.textContent = (currentIndex + 1) + '/' + filteredData.length;
+var globalIdx = allData.findIndex(function(s) { return s.title === filteredData[currentIndex].title; });
+updateLikedUI(globalIdx);
+localStorage.setItem('lastPosition', globalIdx);
+}
+function updateLikedUI(idx) {
+if (likedStories.has(idx + 1)) {
+likeBtn.classList.add('liked');
+} else {
+likeBtn.classList.remove('liked');
+}
+}
+function speakStory() {
+if (isPlaying) {
+speechSynthesis.cancel();
+isPlaying = false;
+playBtn.classList.remove('active');
+return;
+}
+var story = filteredData[currentIndex];
+var text = story.title + '。' + story.content;
+var utterance = new SpeechSynthesisUtterance(text);
+utterance.lang = 'zh-CN';
+utterance.rate = 0.8;
+utterance.onend = function() {
+isPlaying = false;
+playBtn.classList.remove('active');
+};
+speechSynthesis.speak(utterance);
+isPlaying = true;
+playBtn.classList.add('active');
+}
+function toggleLike() {
+var idx = allData.findIndex(function(s) { return s.title === filteredData[currentIndex].title; }) + 1;
+if (likedStories.has(idx)) {
+likedStories.delete(idx);
+} else {
+likedStories.add(idx);
+}
+localStorage.setItem('likedStories', JSON.stringify([...likedStories]));
+var globalIdx = allData.findIndex(function(s) { return s.title === filteredData[currentIndex].title; });
+updateLikedUI(globalIdx);
+}
+function bindEvents() {
+pageNum.addEventListener('click', function() {
+renderTocList();
+tocModal.classList.add('show');
+});
+document.getElementById('tocClose').addEventListener('click', function() {
+tocModal.classList.remove('show');
+});
+tocModal.addEventListener('click', function(e) { 
+if (e.target === tocModal) tocModal.classList.remove('show'); 
+});
+tocSearch.addEventListener('input', function(e) {
+renderTocList(e.target.value);
+});
+playBtn.addEventListener('click', speakStory);
+likeBtn.addEventListener('click', toggleLike);
+var scrollTimer;
+cardsWrapper.addEventListener('scroll', function() {
+clearTimeout(scrollTimer);
+scrollTimer = setTimeout(function() {
+var cardWidth = cardsWrapper.offsetWidth;
+var newIndex = Math.round(cardsWrapper.scrollLeft / cardWidth);
+if (newIndex !== currentIndex && newIndex >= 0 && newIndex < filteredData.length) {
+currentIndex = newIndex;
+updatePageNum();
+}
+}, 100);
+}, { passive: true });
+}
+loadData();
+</script>
+</body>
+</html>

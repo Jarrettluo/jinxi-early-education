@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>儿童诗词歌赋</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    :root {
+      --bg-1: #fdf6e3; --bg-2: #fef5f5; --bg-3: #f5f9ff; --bg-4: #f0fff0;
+      --bg-5: #fff8f0; --bg-6: #f0f5ff; --bg-7: #fff0f5; --bg-8: #f5fff8;
+      --bg-9: #fff5f0; --bg-10: #f8f5ff; --bg-11: #fdf6e3; --bg-12: #fef5f5; --bg-13: #f5f9ff; --bg-14: #f0fff0; --bg-15: #fff8f0; --bg-16: #f0f5ff; --bg-17: #fff0f5; --bg-18: #f5fff8; --bg-19: #fff5f0; --bg-20: #f8f5ff;
+      --text-primary: #2c1810; --text-secondary: #6b5344; --accent: #c41e3a;
+      --top-bar-bg: rgba(255,255,255,0.95);
+    }
+    
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Noto Serif SC', 'Songti SC', serif; color: var(--text-primary); }
+    
+    /* 顶部栏 */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      padding: 0 16px; padding-top: env(safe-area-inset-top, 10px);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--top-bar-bg); backdrop-filter: blur(10px); z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .top-left { display: flex; flex-direction: column; gap: 1px; }
+    .child-name { font-family: 'ZCOOL XiaoWei', serif; font-size: 17px; color: var(--accent); font-weight: bold; cursor: pointer; }
+    .daily-label { font-size: 10px; color: var(--text-secondary); letter-spacing: 1px; }
+    
+    .top-right { display: flex; align-items: center; gap: 8px; }
+    .page-num {
+      font-size: 13px; color: var(--text-secondary); font-weight: 500;
+    }
+    .tool-btn {
+      width: 32px; height: 32px; border: none; border-radius: 8px;
+      background: transparent; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 18px; color: var(--text-secondary);
+    }
+    .tool-btn:active { background: rgba(0,0,0,0.05); }
+    .tool-btn.active { color: var(--accent); }
+    .tool-btn.liked { color: #e74c3c; }
+    
+    .mode-toggle {
+      display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+      border: 1px solid var(--text-secondary); border-radius: 14px;
+      background: transparent; font-size: 11px; color: var(--text-secondary); cursor: pointer;
+    }
+    .mode-toggle.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .mode-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-secondary); }
+    .mode-toggle.active .mode-dot { background: #fff; }
+    
+    /* 横向滚动容器 */
+    .cards-container {
+      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      display: flex; overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    
+    .poem-card {
+      min-width: 100%; height: 100%; scroll-snap-align: start;
+      padding: 20px 24px 60px;
+      padding-top: calc(20px + env(safe-area-inset-top, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 60px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start; gap: 14px;
+    }
+    .poem-card.bg-1 { 
+      background: var(--bg-1) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBzbGljZSI+CiAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMTIwIiByPSI2MCIgZmlsbD0iI2Y1YTYyMyIgb3BhY2l0eT0iMC4zIi8+CiAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMTIwIiByPSI0NSIgZmlsbD0iI2Y1YTYyMyIgb3BhY2l0eT0iMC41Ii8+CiAgPHBhdGggZD0iTTAgMjgwIFE4MCAyMDAgMTUwIDI1MCBRMjAwIDIyMCAyODAgMjYwIFEzNTAgMjAwIDQwMCAyNDAgTDQwMCAzNTAgTDAgMzUwIFoiIGZpbGw9IiMyZDVhNGQiIG9wYWNpdHk9IjAuMTUiLz4KICA8cGF0aCBkPSJNMCAzMjAgUTEwMCAyNjAgMTgwIDMwMCBRMjUwIDI3MCAzMjAgMzEwIFEzODAgMjYwIDQwMCAyOTAgTDQwMCAzODAgTDAgMzgwIFoiIGZpbGw9IiMxYTQ1MzgiIG9wYWNpdHk9IjAuMiIvPgogIDxwYXRoIGQ9Ik0wIDM4MCBRMTIwIDMyMCAyMDAgMzYwIFEyODAgMzMwIDM1MCAzNzAgUTQwMCAzNDAgNDAwIDM2MCBMNDAwIDQyMCBMMCA0MjAgWiIgZmlsbD0iIzBkMzMyNSIgb3BhY2l0eT0iMC4yNSIvPgogIDxwYXRoIGQ9Ik0wIDQyMCBRODAgNDAwIDE1MCA0MzAgUTIyMCA0MTAgMjgwIDQ0MCBRMzUwIDQyMCA0MDAgNDUwIEw0MDAgNjAwIEwwIDYwMCBaIiBmaWxsPSIjM2E3Y2E1IiBvcGFjaXR5PSIwLjIiLz4KICA8cGF0aCBkPSJNMCA0NTAgUTEwMCA0MzAgMTgwIDQ2MCBRMjYwIDQ0MCAzMjAgNDcwIFEzODAgNDUwIDQwMCA0ODAgTDQwMCA2MDAgTDAgNjAwIFoiIGZpbGw9IiMyZDZhOGQiIG9wYWNpdHk9IjAuMTUiLz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMyYzE4MTAiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjYiPgogICAgPHBhdGggZD0iTTEwMCAxNjAgUTEwNSAxNTUgMTEwIDE2MCBRMTE1IDE1NSAxMjAgMTYwIi8+CiAgICA8cGF0aCBkPSJNMTMwIDE4MCBRMTM1IDE3NSAxNDAgMTgwIFExNDUgMTc1IDE1MCAxODAiLz4KICA8L2c+Cjwvc3ZnPg==") center/cover no-repeat; }
+    .poem-card.bg-2 { 
+      background: var(--bg-2) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBzbGljZSI+CiAgPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSI2MDAiIGZpbGw9IiNlOGY1ZTgiLz4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iNTAwIiByeD0iMjAwIiByeT0iMTAwIiBmaWxsPSIjODFjNzg0IiBvcGFjaXR5PSIwLjI1Ii8+CiAgPGVsbGlwc2UgY3g9IjIwMCIgY3k9IjU1MCIgcng9IjE4MCIgcnk9IjgwIiBmaWxsPSIjNjZiYjZhIiBvcGFjaXR5PSIwLjIiLz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyMDAsIDM1MCkiPgogICAgPGVsbGlwc2UgY3g9IjAiIGN5PSIyMCIgcng9IjUwIiByeT0iMjUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuODUiLz4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMjAiIHI9IjE4IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjkiLz4KICAgIDxwb2x5Z29uIHBvaW50cz0iMTUsLTIwIDMwLC0xOCAxNSwtMTUiIGZpbGw9IiNmNWE2MjMiLz4KICAgIDxjaXJjbGUgY3g9IjUiIGN5PSItMjUiIHI9IjIuNSIgZmlsbD0iIzMzMyIvPgogIDwvZz4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iNDIwIiByeD0iMzAiIHJ5PSIxMiIgZmlsbD0iI2VmNTM1MCIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iODAiIGN5PSI1MjAiIHI9IjMwIiBmaWxsPSIjNGNhZjUwIiBvcGFjaXR5PSIwLjMiLz4KICA8Y2lyY2xlIGN4PSIzMjAiIGN5PSI1MDAiIHI9IjI1IiBmaWxsPSIjNGNhZjUwIiBvcGFjaXR5PSIwLjI1Ii8+Cjwvc3ZnPg==") center/cover no-repeat; }
+    .poem-card.bg-3 { 
+      background: var(--bg-3) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8Y2lyY2xlIGN4PSIzMjAiIGN5PSIxMDAiIHI9IjM1IiBmaWxsPSIjZmZkNzAwIiBvcGFjaXR5PSIwLjEiLz4KICA8Y2lyY2xlIGN4PSI4MCIgY3k9IjYwIiByPSIxLjUiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMiIvPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjkwIiByPSIxIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjE1Ii8+CiAgPGNpcmNsZSBjeD0iMjUwIiBjeT0iNTAiIHI9IjEuNSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yIi8+CiAgPGNpcmNsZSBjeD0iNTAiIGN5PSIxNDAiIHI9IjEiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMTUiLz4KICA8Y2lyY2xlIGN4PSIzNTAiIGN5PSIxODAiIHI9IjEuNSIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4yIi8+Cjwvc3ZnPg==") center/cover no-repeat; }
+    .poem-card.bg-4 { background: var(--bg-4) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g5pil5aSp6IqxIC0tPgogIDxjaXJjbGUgY3g9IjgwIiBjeT0iMTIwIiByPSIxOCIgZmlsbD0iI2U5MWU2MyIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMTgwIiBjeT0iMTAwIiByPSIyMiIgZmlsbD0iI2Y0OGZiMSIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iMTQwIiByPSIyMCIgZmlsbD0iI2U5MWU2MyIgb3BhY2l0eT0iMC41Ii8+CiAgPGNpcmNsZSBjeD0iMTIwIiBjeT0iMjAwIiByPSIxNSIgZmlsbD0iI2Y0OGZiMSIgb3BhY2l0eT0iMC41Ii8+CiAgPCEtLSDlsI/puJ8gLS0+CiAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMjUwIiByPSI4IiBmaWxsPSIjOGJjMzRhIi8+CiAgPGNpcmNsZSBjeD0iMjgwIiBjeT0iMjMwIiByPSI2IiBmaWxsPSIjOGJjMzRhIi8+Cjwvc3ZnPgo=") center/cover no-repeat; }
+    .poem-card.bg-5 { background: var(--bg-5) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZmZWJlZSIvPgogIDwhLS0g57qi6LGGIC0tPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjIwMCIgcj0iMTQiIGZpbGw9IiNjNjI4MjgiIG9wYWNpdHk9IjAuNyIvPgogIDxjaXJjbGUgY3g9IjIyMCIgY3k9IjE4MCIgcj0iMTYiIGZpbGw9IiNiNzFjMWMiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjI4MCIgY3k9IjIxMCIgcj0iMTMiIGZpbGw9IiNjNjI4MjgiIG9wYWNpdHk9IjAuNyIvPgogIDxjaXJjbGUgY3g9IjE5MCIgY3k9IjI2MCIgcj0iMTIiIGZpbGw9IiNkMzJmMmYiIG9wYWNpdHk9IjAuNiIvPgogIDxjaXJjbGUgY3g9IjI1MCIgY3k9IjI1MCIgcj0iMTQiIGZpbGw9IiNjNjI4MjgiIG9wYWNpdHk9IjAuNiIvPgo8L3N2Zz4K") center/cover no-repeat; }
+    .poem-card.bg-6 { background: var(--bg-6) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g56i755SwIC0tPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSIzODAiIHJ4PSIxODAiIHJ5PSIxNDAiIGZpbGw9IiM0Y2FmNTAiIG9wYWNpdHk9IjAuMzUiLz4KICA8IS0tIOeou+eplyAtLT4KICA8cGF0aCBkPSJNMTAwIDM0MCBMMTEwIDMwMCBMMTIwIDM0MCIgc3Ryb2tlPSIjNjZiYjZhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMTgwIDMzMCBMMTkwIDI4MCBMMjAwIDMzMCIgc3Ryb2tlPSIjNjZiYjZhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMjYwIDM0MCBMMjcwIDI5MCBMMjgwIDM0MCIgc3Ryb2tlPSIjNjZiYjZhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMTQwIDM4MCBMMTQ1IDM1MCBMMTUwIDM4MCIgc3Ryb2tlPSIjNjZiYjZhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMjIwIDM3MCBMMjI1IDM0MCBMMjMwIDM3MCIgc3Ryb2tlPSIjNjZiYjZhIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+    .poem-card.bg-7 { background: var(--bg-7) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2VjZWZmMSIvPgogIDwhLS0g6Zuq6IqxIC0tPgogIDxjaXJjbGUgY3g9IjgwIiBjeT0iODAiIHI9IjQiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIxODAiIGN5PSI2MCIgcj0iNSIgZmlsbD0iI2ZmZiIvPgogIDxjaXJjbGUgY3g9IjI4MCIgY3k9IjEwMCIgcj0iNCIgZmlsbD0iI2ZmZiIvPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iMTYwIiByPSIzIiBmaWxsPSIjZmZmIi8+CiAgPGNpcmNsZSBjeD0iMzUwIiBjeT0iMTQwIiByPSI0IiBmaWxsPSIjZmZmIi8+CiAgPGNpcmNsZSBjeD0iMTIwIiBjeT0iMjAwIiByPSIzIiBmaWxsPSIjZmZmIi8+CiAgPCEtLSDlraToiJ8gLS0+CiAgPHBhdGggZD0iTTE1MCA0MjAgTDI1MCA0MjAgTDIzMCA0NTAgTDE3MCA0NTAgWiIgZmlsbD0iIzVkNDAzNyIvPgogIDxsaW5lIHgxPSIxODAiIHkxPSI0MjAiIHgyPSIxODAiIHkyPSIzODAiIHN0cm9rZT0iIzVkNDAzNyIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjIyMCIgeTE9IjQyMCIgeDI9IjIyMCIgeTI9IjM4MCIgc3Ryb2tlPSIjNWQ0MDM3IiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+    .poem-card.bg-8 { background: var(--bg-8) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g5qCR5pyoIC0tPgogIDxyZWN0IHg9IjEwMCIgeT0iMjUwIiB3aWR0aD0iMjUiIGhlaWdodD0iMjUwIiBmaWxsPSIjNzk1NTQ4IiBvcGFjaXR5PSIwLjQiLz4KICA8cmVjdCB4PSIyMDAiIHk9IjIwMCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzc5NTU0OCIgb3BhY2l0eT0iMC40NSIvPgogIDxyZWN0IHg9IjMwMCIgeT0iMjYwIiB3aWR0aD0iMjIiIGhlaWdodD0iMjQwIiBmaWxsPSIjNzk1NTQ4IiBvcGFjaXR5PSIwLjM1Ii8+CiAgPCEtLSDmoJHlj7YgLS0+CiAgPGVsbGlwc2UgY3g9IjExMiIgY3k9IjIzMCIgcng9IjMwIiByeT0iNDAiIGZpbGw9IiM0Y2FmNTAiIG9wYWNpdHk9IjAuMyIvPgogIDxlbGxpcHNlIGN4PSIyMTUiIGN5PSIxODAiIHJ4PSIzNSIgcnk9IjUwIiBmaWxsPSIjNjZiYjZhIiBvcGFjaXR5PSIwLjM1Ii8+CiAgPGVsbGlwc2UgY3g9IjMxMSIgY3k9IjI0MCIgcng9IjI4IiByeT0iMzUiIGZpbGw9IiM0Y2FmNTAiIG9wYWNpdHk9IjAuMyIvPgo8L3N2Zz4K") center/cover no-repeat; }
+    .poem-card.bg-9 { background: var(--bg-9) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZmZjNlMCIvPgogIDwhLS0g57yd6KGj57q/5p2hIC0tPgogIDxwYXRoIGQ9Ik0xNTAgMzAwIFEyMDAgMzUwIDI1MCAzMDAiIHN0cm9rZT0iIzhkNmU2MyIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTE2MCAzMjAgUTIwMCAzNjAgMjQwIDMyMCIgc3Ryb2tlPSIjOGQ2ZTYzIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8IS0tIOmSiCAtLT4KICA8bGluZSB4MT0iMTk1IiB5MT0iMzEwIiB4Mj0iMTk1IiB5Mj0iMjkwIiBzdHJva2U9IiM5ZTllOWUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxwb2x5Z29uIHBvaW50cz0iMTk1LDI4NSwxOTAsMjk1LDIwMCwyOTUiIGZpbGw9IiM5ZTllOWUiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+    .poem-card.bg-10 { background: var(--bg-10) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2UzZjJmZCIvPgogIDwhLS0g5b2p5LqRIC0tPgogIDxlbGxpcHNlIGN4PSIxMDAiIGN5PSIxNTAiIHJ4PSI1MCIgcnk9IjI1IiBmaWxsPSIjZjhiYmQ5IiBvcGFjaXR5PSIwLjUiLz4KICA8ZWxsaXBzZSBjeD0iMTgwIiBjeT0iMTIwIiByeD0iNjAiIHJ5PSIzMCIgZmlsbD0iI2NlOTNkOCIgb3BhY2l0eT0iMC41Ii8+CiAgPGVsbGlwc2UgY3g9IjI4MCIgY3k9IjE2MCIgcng9IjU1IiByeT0iMjgiIGZpbGw9IiNmNDhmYjEiIG9wYWNpdHk9IjAuNDUiLz4KICA8IS0tIOi9u+iInyAtLT4KICA8cGF0aCBkPSJNMTUwIDM4MCBRMjAwIDM3MCAyNTAgMzgwIEwyMzAgNDIwIEwxNzAgNDIwIFoiIGZpbGw9IiM4ZDZlNjMiLz4KICA8cGF0aCBkPSJNMTcwIDM4MCBMMjAwIDM1MCBMMjMwIDM4MCIgc3Ryb2tlPSIjNWQ0MDM3IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+
+    .poem-card.bg-11 { background: var(--bg-11) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g57+g5p+zIC0tPgogIDxwYXRoIGQ9Ik0wIDE4MCBRODAgMTYwIDE1MCAxODAgUTIwMCAxNTAgMjgwIDE4MCBRMzUwIDE2MCA0MDAgMTgwIiBmaWxsPSJub25lIiBzdHJva2U9IiM2NmJiNmEiIHN0cm9rZS13aWR0aD0iNCIgb3BhY2l0eT0iMC41Ii8+CiAgPHBhdGggZD0iTTAgMjIwIFExMDAgMjAwIDE4MCAyMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxYzc4NCIgc3Ryb2tlLXdpZHRoPSIzIiBvcGFjaXR5PSIwLjQiLz4KICA8IS0tIOm7hOm5giAtLT4KICA8ZWxsaXBzZSBjeD0iMTQwIiBjeT0iMjYwIiByeD0iMjUiIHJ5PSIxOCIgZmlsbD0iI2ZmZDU0ZiIvPgogIDxjaXJjbGUgY3g9IjEzMiIgY3k9IjI1MCIgcj0iMTIiIGZpbGw9IiNmZmQ1NGYiLz4KICA8Y2lyY2xlIGN4PSIxMjgiIGN5PSIyNDgiIHI9IjIuNSIgZmlsbD0iIzMzMyIvPgogIDxwb2x5Z29uIHBvaW50cz0iMTQyLDI1MCAxNTUsMjQ1IDE0MiwyNTUiIGZpbGw9IiNmZjk4MDAiLz4KICA8cGF0aCBkPSJNMTI1IDI2NSBRMTA1IDI4NSA5NSAzMDUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZDU0ZiIgc3Ryb2tlLXdpZHRoPSI4Ii8+CiAgPCEtLSDnmb3pua0gLS0+CiAgPGVsbGlwc2UgY3g9IjI2MCIgY3k9IjMyMCIgcng9IjIyIiByeT0iMTQiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIyNTQiIGN5PSIzMDgiIHI9IjExIiBmaWxsPSIjZmZmIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIyNjUsMzA4IDI4MCwzMDIgMjY1LDMxNSIgZmlsbD0iI2ZmOTgwMCIvPgogIDxwYXRoIGQ9Ik0yNDggMzI4IFEyNjAgMzcwIDI4MCAzNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBhdGggZD0iTTI1NSAzMjggUTI0MCAzODAgMjY1IDM5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIOilv+WyrembqiAtLT4KICA8cGF0aCBkPSJNNTAgMTAwIEwxMDAgNTAgTDE1MCA4MCBMMjAwIDQwIEwyNTAgNzAgTDMwMCAzMCBMMzUwIDYwIEw0MDAgMjAgTDQwMCAxNTAgTDUwIDE1MCBaIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjg1Ii8+Cjwvc3ZnPgo=") center/cover no-repeat; }
+
+    .poem-card.bg-12 { background: var(--bg-12) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g6I2J5Y6fIC0tPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSIzNTAiIHJ4PSIyMDAiIHJ5PSIxODAiIGZpbGw9IiM4MWM3ODQiIG9wYWNpdHk9IjAuMjUiLz4KICA8ZWxsaXBzZSBjeD0iMjAwIiBjeT0iNDAwIiByeD0iMTgwIiByeT0iMTUwIiBmaWxsPSIjNjZiYjZhIiBvcGFjaXR5PSIwLjIiLz4KICA8IS0tIOmHjueBqyAtLT4KICA8cGF0aCBkPSJNMTIwIDMyMCBRMTQwIDI1MCAxNjAgMzIwIFExODAgMjMwIDIwMCAzMDAgUTIyMCAyMDAgMjQwIDMwMCBRMjYwIDIzMCAyODAgMzIwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjU3MjIiIHN0cm9rZS13aWR0aD0iNiIgb3BhY2l0eT0iMC43Ii8+CiAgPHBhdGggZD0iTTE0MCAzNDAgUTE2MCAyOTAgMTgwIDM0MCBRMjAwIDI3MCAyMjAgMzQwIFEyNDAgMjgwIDI2MCAzNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmOTgwMCIgc3Ryb2tlLXdpZHRoPSI0IiBvcGFjaXR5PSIwLjYiLz4KICA8IS0tIOaWsOiKvSAtLT4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI0NTAiIHI9IjgiIGZpbGw9IiM0Y2FmNTAiLz4KICA8Y2lyY2xlIGN4PSIxODAiIGN5PSI0NjAiIHI9IjYiIGZpbGw9IiM2NmJiNmEiLz4KICA8Y2lyY2xlIGN4PSIyNjAiIGN5PSI0NTUiIHI9IjciIGZpbGw9IiM0Y2FmNTAiLz4KICA8Y2lyY2xlIGN4PSIzNDAiIGN5PSI0NjUiIHI9IjUiIGZpbGw9IiM2NmJiNmEiLz4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSI0OTAiIHI9IjYiIGZpbGw9IiM0Y2FmNTAiLz4KICA8Y2lyY2xlIGN4PSIyNTAiIGN5PSI0OTUiIHI9IjUiIGZpbGw9IiM2NmJiNmEiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+
+    .poem-card.bg-13 { background: var(--bg-13) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2UzZjJmZCIvPgogIDwhLS0g5rGf5rC0IC0tPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSI0MDAiIHJ4PSIyMDAiIHJ5PSIyMDAiIGZpbGw9IiM2NGI1ZjYiIG9wYWNpdHk9IjAuMzUiLz4KICA8bGluZSB4MT0iNDAiIHkxPSIzNTAiIHgyPSIzNjAiIHkyPSIzNTAiIHN0cm9rZT0iIzQyYTVmNSIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIwLjQiLz4KICA8bGluZSB4MT0iNjAiIHkxPSI0MDAiIHgyPSIzNDAiIHkyPSI0MDAiIHN0cm9rZT0iIzQyYTVmNSIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIwLjQiLz4KICA8bGluZSB4MT0iNDAiIHkxPSI0NTAiIHgyPSIzNjAiIHkyPSI0NTAiIHN0cm9rZT0iIzQyYTVmNSIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIwLjQiLz4KICA8IS0tIOaciOS6riAtLT4KICA8Y2lyY2xlIGN4PSIzMDAiIGN5PSIxNTAiIHI9IjM1IiBmaWxsPSIjZmZmOWM0IiBvcGFjaXR5PSIwLjkiLz4KICA8Y2lyY2xlIGN4PSIzMDAiIGN5PSIxNTAiIHI9IjI4IiBmaWxsPSIjZmZlYjNiIiBvcGFjaXR5PSIwLjUiLz4KICA8IS0tIOaciOS6ruWAkuW9sSAtLT4KICA8ZWxsaXBzZSBjeD0iMzAwIiBjeT0iMzgwIiByeD0iMjUiIHJ5PSI2IiBmaWxsPSIjZmZmOWM0IiBvcGFjaXR5PSIwLjYiLz4KICA8ZWxsaXBzZSBjeD0iMzAwIiBjeT0iNDAwIiByeD0iMTgiIHJ5PSI0IiBmaWxsPSIjZmZmOWM0IiBvcGFjaXR5PSIwLjQiLz4KICA8IS0tIOWuouiIuSAtLT4KICA8cGF0aCBkPSJNMTgwIDQyMCBRMjAwIDQxMCAyMjAgNDIwIEwyMTAgNDUwIEwxOTAgNDUwIFoiIGZpbGw9IiM4ZDZlNjMiLz4KICA8bGluZSB4MT0iMTk1IiB5MT0iNDIwIiB4Mj0iMTk1IiB5Mj0iMzk1IiBzdHJva2U9IiM1ZDQwMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIyMDUiIHkxPSI0MjAiIHgyPSIyMDUiIHkyPSIzOTUiIHN0cm9rZT0iIzVkNDAzNyIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHJlY3QgeD0iMTg1IiB5PSIzOTUiIHdpZHRoPSIzMCIgaGVpZ2h0PSI1IiBmaWxsPSIjNWQ0MDM3Ii8+Cjwvc3ZnPgo=") center/cover no-repeat; }
+
+    .poem-card.bg-14 { background: var(--bg-14) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g5bGxIC0tPgogIDxwYXRoIGQ9Ik04MCA1MDAgTDEyMCAzNTAgTDE2MCAyODAgTDIwMCAyMDAgTDI0MCAyODAgTDI4MCAzNTAgTDMyMCA1MDAgWiIgZmlsbD0iIzc5NTU0OCIgb3BhY2l0eT0iMC4zNSIvPgogIDxwYXRoIGQ9Ik0xNTAgMjkwIEwyMDAgMTgwIEwyNTAgMjkwIiBmaWxsPSIjOWU5ZTllIiBvcGFjaXR5PSIwLjMiLz4KICA8IS0tIOeZveS6kSAtLT4KICA8ZWxsaXBzZSBjeD0iODAiIGN5PSIxMjAiIHJ4PSI0MCIgcnk9IjI1IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjciLz4KICA8ZWxsaXBzZSBjeD0iMTgwIiBjeT0iMTAwIiByeD0iNTAiIHJ5PSIzMCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC43NSIvPgogIDxlbGxpcHNlIGN4PSIzMDAiIGN5PSIxMzAiIHJ4PSI0NSIgcnk9IjI4IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjciLz4KICA8ZWxsaXBzZSBjeD0iMjUwIiBjeT0iMTYwIiByeD0iMzUiIHJ5PSIyMCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC42Ii8+Cjwvc3ZnPgo=") center/cover no-repeat; }
+
+    .poem-card.bg-15 { background: var(--bg-15) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2VjZWZmMSIvPgogIDwhLS0g6Zuq6IqxIC0tPgogIDxjaXJjbGUgY3g9IjcwIiBjeT0iODAiIHI9IjQiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSI2MCIgcj0iMy41IiBmaWxsPSIjZmZmIi8+CiAgPGNpcmNsZSBjeD0iMjMwIiBjeT0iOTAiIHI9IjQiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIzMTAiIGN5PSI3MCIgcj0iMy41IiBmaWxsPSIjZmZmIi8+CiAgPGNpcmNsZSBjeD0iNTAiIGN5PSIxODAiIHI9IjMiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIxODAiIGN5PSIyMDAiIHI9IjQiIGZpbGw9IiNmZmYiLz4KICA8Y2lyY2xlIGN4PSIzMzAiIGN5PSIxNjAiIHI9IjMuNSIgZmlsbD0iI2ZmZiIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjI4MCIgcj0iMy41IiBmaWxsPSIjZmZmIi8+CiAgPGNpcmNsZSBjeD0iMjcwIiBjeT0iMzAwIiByPSIzIiBmaWxsPSIjZmZmIi8+CiAgPCEtLSDngavngokgLS0+CiAgPHJlY3QgeD0iMTY1IiB5PSIzNTAiIHdpZHRoPSI3MCIgaGVpZ2h0PSI0NSIgZmlsbD0iIzVkNDAzNyIgcng9IjQiLz4KICA8cmVjdCB4PSIxNzUiIHk9IjM2MCIgd2lkdGg9IjUwIiBoZWlnaHQ9IjI1IiBmaWxsPSIjM2UyNzIzIiByeD0iMiIvPgogIDwhLS0g54Gr54SwIC0tPgogIDxlbGxpcHNlIGN4PSIxODUiIGN5PSIzNzUiIHJ4PSI4IiByeT0iMTIiIGZpbGw9IiNmZjU3MjIiIG9wYWNpdHk9IjAuOCIvPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSIzNzUiIHJ4PSI4IiByeT0iMTIiIGZpbGw9IiNmZjU3MjIiIG9wYWNpdHk9IjAuOCIvPgogIDxlbGxpcHNlIGN4PSIyMTUiIGN5PSIzNzUiIHJ4PSI4IiByeT0iMTIiIGZpbGw9IiNmZjU3MjIiIG9wYWNpdHk9IjAuOCIvPgogIDxlbGxpcHNlIGN4PSIxOTAiIGN5PSIzNjgiIHJ4PSI1IiByeT0iNyIgZmlsbD0iI2ZmOTgwMCIgb3BhY2l0eT0iMC45Ii8+CiAgPGVsbGlwc2UgY3g9IjIwNSIgY3k9IjM2OCIgcng9IjUiIHJ5PSI3IiBmaWxsPSIjZmY5ODAwIiBvcGFjaXR5PSIwLjkiLz4KICA8IS0tIOmFkiAtLT4KICA8ZWxsaXBzZSBjeD0iMzAwIiBjeT0iMzc1IiByeD0iMTUiIHJ5PSIyMiIgZmlsbD0iI2ZmY2M4MCIvPgogIDxlbGxpcHNlIGN4PSIzMDAiIGN5PSIzNzAiIHJ4PSIxMCIgcnk9IjUiIGZpbGw9IiNmZmI3NGQiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+
+    .poem-card.bg-16 { background: var(--bg-16) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2VjZWZmMSIvPgogIDwhLS0g6ZO26Imy5pyI5YWJIC0tPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEyMCIgcj0iNjAiIGZpbGw9IiNjZmQ4ZGMiIG9wYWNpdHk9IjAuMyIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjEyMCIgcj0iNDUiIGZpbGw9IiNlY2VmZjEiIG9wYWNpdHk9IjAuMTUiLz4KICA8IS0tIOaYjuaciOmVnCAtLT4KICA8Y2lyY2xlIGN4PSIyMDAiIGN5PSIzMjAiIHI9IjgwIiBmaWxsPSIjZWNlZmYxIiBzdHJva2U9IiM5MGE0YWUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjMyMCIgcj0iNjUiIGZpbGw9IiNlY2VmZjEiIHN0cm9rZT0iI2IwYmVjNSIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSDogIHkurrlj43lsIQgLS0+CiAgPGNpcmNsZSBjeD0iMTY1IiBjeT0iMzIwIiByPSIxMCIgZmlsbD0iIzYwN2Q4YiIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjMyMCIgcj0iMTIiIGZpbGw9IiM3ODkwOWMiLz4KICA8Y2lyY2xlIGN4PSIyMzUiIGN5PSIzMjAiIHI9IjEwIiBmaWxsPSIjNjA3ZDhiIi8+CiAgPCEtLSDnmb3lj5EgLS0+CiAgPHBhdGggZD0iTTE4MCAyODAgUTE3MCAyNTAgMTg1IDIyMCIgc3Ryb2tlPSIjYjBiZWM1IiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMjAwIDI3MCBRMTk1IDIzMCAyMDAgMjAwIiBzdHJva2U9IiNjZmQ4ZGMiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0yMjAgMjgwIFEyMjUgMjUwIDIxNSAyMjAiIHN0cm9rZT0iI2IwYmVjNSIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+Cjwvc3ZnPgo=") center/cover no-repeat; }
+
+    .poem-card.bg-17 { background: var(--bg-17) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZjZTRlYyIvPgogIDwhLS0g5qGD6IqxIC0tPgogIDxjaXJjbGUgY3g9IjgwIiBjeT0iMTUwIiByPSIyMiIgZmlsbD0iI2U5MWU2MyIgb3BhY2l0eT0iMC43Ii8+CiAgPGNpcmNsZSBjeD0iMTYwIiBjeT0iMTIwIiByPSIyOCIgZmlsbD0iI2YwNjI5MiIgb3BhY2l0eT0iMC43NSIvPgogIDxjaXJjbGUgY3g9IjI2MCIgY3k9IjE2MCIgcj0iMjQiIGZpbGw9IiNlOTFlNjMiIG9wYWNpdHk9IjAuNyIvPgogIDxjaXJjbGUgY3g9IjM0MCIgY3k9IjEzMCIgcj0iMjAiIGZpbGw9IiNmMDYyOTIiIG9wYWNpdHk9IjAuNjUiLz4KICA8Y2lyY2xlIGN4PSIxMjAiIGN5PSIyMjAiIHI9IjE4IiBmaWxsPSIjZjQ4ZmIxIiBvcGFjaXR5PSIwLjYiLz4KICA8Y2lyY2xlIGN4PSIyMjAiIGN5PSIyMDAiIHI9IjIwIiBmaWxsPSIjZTkxZTYzIiBvcGFjaXR5PSIwLjY1Ii8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iMjMwIiByPSIxNyIgZmlsbD0iI2YwNjI5MiIgb3BhY2l0eT0iMC42Ii8+CiAgPGNpcmNsZSBjeD0iMTgwIiBjeT0iMjgwIiByPSIxNSIgZmlsbD0iI2Y0OGZiMSIgb3BhY2l0eT0iMC41NSIvPgogIDwhLS0g5rGf5rC057u/IC0tPgogIDxlbGxpcHNlIGN4PSIyMDAiIGN5PSI0NTAiIHJ4PSIyMDAiIHJ5PSIxMjAiIGZpbGw9IiM0Y2FmNTAiIG9wYWNpdHk9IjAuMjUiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+
+    .poem-card.bg-18 { background: var(--bg-18) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2U4ZjVlOSIvPgogIDwhLS0g5p+z5p6dIC0tPgogIDxwYXRoIGQ9Ik02MCAzNTAgUTgwIDMwMCAxMDAgMjUwIFExMTAgMjAwIDkwIDE1MCBRODAgMTIwIDEwMCA4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODFjNzg0IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8cGF0aCBkPSJNMzQwIDM4MCBRMzIwIDMyMCAzNDAgMjcwIFEzNTAgMjIwIDMzMCAxNzAgUTMyMCAxNDAgMzQwIDEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjODFjNzg0IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8cGF0aCBkPSJNODAgMzIwIFExMDAgMzAwIDEyMCAyODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY2YmI2YSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBhdGggZD0iTTEwMCAyOTAgUTEyMCAyNzAgMTQwIDI2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjZiYjZhIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8cGF0aCBkPSJNMzIwIDM1MCBRMzAwIDMzMCAyODAgMzEwIiBmaWxsPSJub25lIiBzdHJva2U9IiM2NmJiNmEiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxwYXRoIGQ9Ik0zNDAgMzEwIFEzMjAgMjkwIDMwMCAyODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY2YmI2YSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPCEtLSDmipjmn7PpgIHliKsgLS0+CiAgPHBhdGggZD0iTTE5MCA0MjAgTDIxMCAzOTAiIHN0cm9rZT0iIzRjYWY1MCIgc3Ryb2tlLXdpZHRoPSI1Ii8+CiAgPHBhdGggZD0iTTE5MCA0MjAgTDE3MCA0MDAiIHN0cm9rZT0iIzRjYWY1MCIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHBhdGggZD0iTTIxMCAzOTAgTDIzMCAzNzAiIHN0cm9rZT0iIzRjYWY1MCIgc3Ryb2tlLXdpZHRoPSI0Ii8+Cjwvc3ZnPgo=") center/cover no-repeat; }
+
+    .poem-card.bg-19 { background: var(--bg-19) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZmZjNlMCIvPgogIDwhLS0g5p6r5Y+2IC0tPgogIDxjaXJjbGUgY3g9IjkwIiBjeT0iMTMwIiByPSIxNiIgZmlsbD0iI2ZmNTcyMiIgb3BhY2l0eT0iMC43NSIvPgogIDxjaXJjbGUgY3g9IjE4MCIgY3k9IjEwMCIgcj0iMjAiIGZpbGw9IiNmZjcwNDMiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjI4MCIgY3k9IjEyMCIgcj0iMTciIGZpbGw9IiNmZjU3MjIiIG9wYWNpdHk9IjAuNzUiLz4KICA8Y2lyY2xlIGN4PSIzNjAiIGN5PSIxNjAiIHI9IjE0IiBmaWxsPSIjZmY3MDQzIiBvcGFjaXR5PSIwLjciLz4KICA8Y2lyY2xlIGN4PSI3MCIgY3k9IjIzMCIgcj0iMTUiIGZpbGw9IiNmZjU3MjIiIG9wYWNpdHk9IjAuNyIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMTgiIGZpbGw9IiNmZjU3MjIiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjMzMCIgY3k9IjI0MCIgcj0iMTMiIGZpbGw9IiNmZjcwNDMiIG9wYWNpdHk9IjAuNjUiLz4KICA8IS0tIOa4lOeBqyAtLT4KICA8Y2lyY2xlIGN4PSIxNDAiIGN5PSI0MDAiIHI9IjEwIiBmaWxsPSIjZmZlYjNiIi8+CiAgPGNpcmNsZSBjeD0iMTgwIiBjeT0iNDMwIiByPSI4IiBmaWxsPSIjZmZlYjNiIi8+CiAgPGNpcmNsZSBjeD0iMjUwIiBjeT0iNDEwIiByPSI5IiBmaWxsPSIjZmZlYjNiIi8+CiAgPGNpcmNsZSBjeD0iMjIwIiBjeT0iNDYwIiByPSI3IiBmaWxsPSIjZmZlYjNiIi8+CiAgPCEtLSDlr5LlsbHlr7rpkp/lo7AgLS0+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iNTIwIiByPSIzNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiIG9wYWNpdHk9IjAuMzUiLz4KICA8Y2lyY2xlIGN4PSIzMDAiIGN5PSI1MjAiIHI9IjU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjk4MDAiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iMC4yIi8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iNTIwIiByPSI3NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMTIiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+
+    .poem-card.bg-20 { background: var(--bg-20) url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNjAwIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2UzZjJmZCIvPgogIDwhLS0g6aaZ54KJ5bOwIC0tPgogIDxwYXRoIGQ9Ik04MCA1MDAgTDEzMCAzMDAgTDE4MCAyMDAgTDIyMCAxNTAgTDI2MCAyMDAgTDMxMCAzMDAgTDM2MCA1MDAgWiIgZmlsbD0iIzkwYTRhZSIgb3BhY2l0eT0iMC4zNSIvPgogIDxwYXRoIGQ9Ik0xNTAgMjIwIEwyMjAgMTAwIEwyOTAgMjIwIiBmaWxsPSIjYjBiZWM1IiBvcGFjaXR5PSIwLjI1Ii8+CiAgPCEtLSDngJHluIMgLS0+CiAgPHBhdGggZD0iTTE4MCAxNTAgUTE5MCAyMjAgMTg1IDMyMCBRMTgwIDQwMCAxOTAgNTAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0MmE1ZjUiIHN0cm9rZS13aWR0aD0iMTgiIG9wYWNpdHk9IjAuNTUiLz4KICA8cGF0aCBkPSJNMjAwIDE1MCBRMjEwIDIzMCAyMDUgMzMwIFEyMDAgNDIwIDIxMCA1MDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY0YjVmNiIgc3Ryb2tlLXdpZHRoPSIxNSIgb3BhY2l0eT0iMC41Ii8+CiAgPHBhdGggZD0iTTIyMCAxNTAgUTIzMCAyNDAgMjI1IDM0MCBRMjIwIDQ0MCAyMzAgNTAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0MmE1ZjUiIHN0cm9rZS13aWR0aD0iMTIiIG9wYWNpdHk9IjAuNDUiLz4KICA8IS0tIOawtOiKsemjnua6hSAtLT4KICA8Y2lyY2xlIGN4PSIxNzAiIGN5PSIzODAiIHI9IjUiIGZpbGw9IiM5MGNhZjkiIG9wYWNpdHk9IjAuNSIvPgogIDxjaXJjbGUgY3g9IjE5NSIgY3k9IjM1MCIgcj0iNCIgZmlsbD0iIzkwY2FmOSIgb3BhY2l0eT0iMC40NSIvPgogIDxjaXJjbGUgY3g9IjIxMCIgY3k9IjQwMCIgcj0iMy41IiBmaWxsPSIjOTBjYWY5IiBvcGFjaXR5PSIwLjQiLz4KICA8Y2lyY2xlIGN4PSIyMzAiIGN5PSIzNzAiIHI9IjQiIGZpbGw9IiM5MGNhZjkiIG9wYWNpdHk9IjAuMzUiLz4KPC9zdmc+Cg==") center/cover no-repeat; }
+    
+    .poem-title { font-size: 36px; font-weight: 700; letter-spacing: 4px; line-height: 1.3; text-align: center; }
+    .poem-author { font-size: 14px; color: var(--text-secondary); font-style: italic; }
+    .poem-content { font-size: 21px; line-height: 2.2; white-space: pre-wrap; text-align: center; letter-spacing: 2px; max-width: 90%; }
+    
+    /* 底部提示 */
+    .swipe-hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--text-secondary); opacity: 0.5; }
+    
+    /* 弹窗 */
+    .name-edit-modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+      z-index: 200; opacity: 0; visibility: hidden;
+    }
+    .name-edit-modal.show { opacity: 1; visibility: visible; }
+    .name-edit-box { background: #fff; padding: 24px; border-radius: 16px; width: 80%; max-width: 280px; }
+    .name-edit-box h3 { font-size: 18px; margin-bottom: 16px; text-align: center; }
+    .name-edit-box input { width: 100%; padding: 12px; font-size: 18px; border: 1px solid #ddd; border-radius: 8px; text-align: center; margin-bottom: 16px; font-family: inherit; }
+    .name-edit-box button { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="child-name" id="childName">宝宝</div>
+      <div class="daily-label">每日诗词</div>
+    </div>
+    <div class="top-right">
+      <span class="page-num" id="pageNum">1/50</span>
+      <button class="tool-btn" id="playBtn" title="朗读">🔊</button>
+      <button class="tool-btn" id="likeBtn" title="收藏">♥</button>
+      <button class="mode-toggle" id="modeToggle">
+        <span class="mode-dot"></span><span id="modeText">顺序</span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="cards-container" id="cardsContainer"></div>
+  <div class="swipe-hint">← 左右滑动 →</div>
+  
+  <div class="name-edit-modal" id="nameModal">
+    <div class="name-edit-box">
+      <h3>输入宝宝名字</h3>
+      <input type="text" id="nameInput" placeholder="请输入名字" maxlength="6">
+      <button id="saveNameBtn">确定</button>
+    </div>
+  </div>
+  
+  <script>
+    const poems = [
+      { id: 1, title: "登鹳雀楼", author: "王之涣", content: "白日依山尽，黄河入海流。欲穷千里目，更上一层楼。" },
+      { id: 2, title: "咏鹅", author: "骆宾王", content: "鹅鹅鹅，曲项向天歌。白毛浮绿水，红掌拨清波。" },
+      { id: 3, title: "静夜思", author: "李白", content: "床前明月光，疑是地上霜。举头望明月，低头思故乡。" },
+      { id: 4, title: "春晓", author: "孟浩然", content: "春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。" },
+      { id: 5, title: "相思", author: "王维", content: "红豆生南国，春来发几枝。愿君多采撷，此物最相思。" },
+      { id: 6, title: "悯农", author: "李绅", content: "锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。" },
+      { id: 7, title: "江雪", author: "柳宗元", content: "千山鸟飞绝，万径人踪灭。孤舟蓑笠翁，独钓寒江雪。" },
+      { id: 8, title: "鹿柴", author: "王维", content: "空山不见人，但闻人语响。返景入深林，复照青苔上。" },
+      { id: 9, title: "游子吟", author: "孟郊", content: "慈母手中线，游子身上衣。临行密密缝，意恐迟迟归。" },
+      { id: 10, title: "早发白帝城", author: "李白", content: "朝辞白帝彩云间，千里江陵一日还。两岸猿声啼不住，轻舟已过万重山。" },
+      { id: 11, title: "绝句", author: "杜甫", content: "两个黄鹂鸣翠柳，一行白鹭上青天。窗含西岭千秋雪，门泊东吴万里船。" },
+      { id: 12, title: "赋得古原草送别", author: "白居易", content: "离离原上草，一岁一枯荣。野火烧不尽，春风吹又生。" },
+      { id: 13, title: "宿建德江", author: "孟浩然", content: "移舟泊烟渚，日暮客愁新。野旷天低树，江清月近人。" },
+      { id: 14, title: "独坐敬亭山", author: "李白", content: "众鸟高飞尽，孤云独去闲。相看两不厌，只有敬亭山。" },
+      { id: 15, title: "问刘十九", author: "白居易", content: "绿蚁新醅酒，红泥小火炉。晚来天欲雪，能饮一杯无？" },
+      { id: 16, title: "秋浦歌", author: "李白", content: "白发三千丈，缘愁似个长。不知明镜里，何处得秋霜。" },
+      { id: 17, title: "忆江南", author: "白居易", content: "日出江花红胜火，春来江水绿如蓝。能不忆江南？" },
+      { id: 18, title: "送元二使安西", author: "王维", content: "渭城朝雨浥轻尘，客舍青青柳色新。劝君更尽一杯酒，西出阳关无故人。" },
+      { id: 19, title: "枫桥夜泊", author: "张继", content: "月落乌啼霜满天，江枫渔火对愁眠。姑苏城外寒山寺，夜半钟声到客船。" },
+      { id: 20, title: "望庐山瀑布", author: "李白", content: "日照香炉生紫烟，遥看瀑布挂前川。飞流直下三千尺，疑是银河落九天。" },
+      { id: 21, title: "绝句", author: "杜甫", content: "迟日江山丽，春风花草香。泥融飞燕子，沙暖睡鸳鸯。" },
+      { id: 22, title: "早春呈水部张十八员外", author: "韩愈", content: "天街小雨润如酥，草色遥看近却无。最是一年春好处，绝胜烟柳满皇都。" },
+      { id: 23, title: "滁州西涧", author: "韦应物", content: "独怜幽草涧边生，上有黄鹂深树鸣。春潮带雨晚来急，野渡无人舟自横。" },
+      { id: 24, title: "竹枝词", author: "刘禹锡", content: "杨柳青青江水平，闻郎江上踏歌声。东边日出西边雨，道是无晴却有晴。" },
+      { id: 25, title: "乌衣巷", author: "刘禹锡", content: "朱雀桥边野草花，乌衣巷口夕阳斜。旧时王谢堂前燕，飞入寻常百姓家。" },
+      { id: 26, title: "望洞庭", author: "刘禹锡", content: "湖光秋月两相和，潭面无风镜未磨。遥望洞庭山水翠，白云生处有几何。" },
+      { id: 27, title: "暮江吟", author: "白居易", content: "一道残阳铺水中，半江瑟瑟半江红。可怜九月初三夜，露似真珠月似弓。" },
+      { id: 28, title: "钱塘湖春行", author: "白居易", content: "孤山寺北贾亭西，水面初平云脚低。几处早莺争暖树，谁家新燕啄春泥。" },
+      { id: 29, title: "寻隐者不遇", author: "贾岛", content: "松下问童子，言师采药去。只在此山中，云深不知处。" },
+      { id: 30, title: "悯农", author: "李绅", content: "春种一粒粟，秋收万颗子。四海无闲田，农夫犹饿死。" },
+      { id: 31, title: "清明", author: "杜牧", content: "清明时节雨纷纷，路上行人欲断魂。借问酒家何处有，牧童遥指杏花村。" },
+      { id: 32, title: "山行", author: "杜牧", content: "远上寒山石径斜，白云深处有人家。停车坐爱枫林晚，霜叶红于二月花。" },
+      { id: 33, title: "江南春", author: "杜牧", content: "千里莺啼绿映红，水村山郭酒旗风。南朝四百八十寺，多少楼台烟雨中。" },
+      { id: 34, title: "泊秦淮", author: "杜牧", content: "烟笼寒水月笼沙，夜泊秦淮近酒家。商女不知亡国恨，隔江犹唱后庭花。" },
+      { id: 35, title: "夜雪", author: "白居易", content: "已讶衾枕冷，复见窗户明。夜深知雪重，时闻折竹声。" },
+      { id: 36, title: "池上", author: "白居易", content: "小娃撑小艇，偷采白莲回。不解藏踪迹，浮萍一道开。" },
+      { id: 37, title: "小儿垂钓", author: "胡令能", content: "蓬头稚子学垂纶，侧坐莓苔草映身。路人借问遥招手，怕得鱼惊不应人。" },
+      { id: 38, title: "风", author: "李峤", content: "解落三秋叶，能开二月花。过江千尺浪，入竹万竿斜。" },
+      { id: 39, title: "咏柳", author: "贺知章", content: "碧玉妆成一树高，万条垂下绿丝绦不知细叶谁裁出，二月春风似剪刀。" },
+      { id: 40, title: "回乡偶书", author: "贺知章", content: "少小离家老大回，乡音无改鬓毛衰。儿童相见不相识，笑问客从何处来。" },
+      { id: 41, title: "凉州词", author: "王之涣", content: "黄河远上白云间，一片孤城万仞山。羌笛何须怨杨柳，春风不度玉门关。" },
+      { id: 42, title: "出塞", author: "王昌龄", content: "秦时明月汉时关，万里长征人未还。但使龙城飞将在，不教胡马度阴山。" },
+      { id: 43, title: "芙蓉楼送辛渐", author: "王昌龄", content: "寒雨连江夜入吴，平明送客楚山孤。洛阳亲友如相问，一片冰心在玉壶。" },
+      { id: 44, title: "送杜少府之任蜀州", author: "王勃", content: "城阙辅三秦，风烟望五津。与君离别意，同是宦游人。" },
+      { id: 45, title: "望月怀远", author: "张九龄", content: "海上生明月，天涯共此时。情人怨遥夜，竟夕起相思。" },
+      { id: 46, title: "春望", author: "杜甫", content: "国破山河在，城春草木深。感时花溅泪，恨别鸟惊心。" },
+      { id: 47, title: "月夜忆舍弟", author: "杜甫", content: "露从今夜白，月是故乡明。有弟皆分散，无家问死生。" },
+      { id: 48, title: "出师表", author: "诸葛亮", content: "先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。" },
+      { id: 49, title: "劝学", author: "颜真卿", content: "三更灯火五更鸡，正是男儿读书时。黑发不知勤学早，白首方悔读书迟。" },
+      { id: 50, title: "咏鹅", author: "骆宾王", content: "鹅鹅鹅，曲项向天歌。白毛浮绿水，红掌拨清波。" }
+    ];
+
+    let currentIndex = 0;
+    let mode = 'sequential';
+    let isPlaying = false;
+    let likedPoems = new Set();
+    
+    const cardsContainer = document.getElementById('cardsContainer');
+    const modeToggle = document.getElementById('modeToggle');
+    const modeText = document.getElementById('modeText');
+    const pageNum = document.getElementById('pageNum');
+    const childNameEl = document.getElementById('childName');
+    const nameModal = document.getElementById('nameModal');
+    const nameInput = document.getElementById('nameInput');
+    const saveNameBtn = document.getElementById('saveNameBtn');
+    const playBtn = document.getElementById('playBtn');
+    const likeBtn = document.getElementById('likeBtn');
+    
+    // 格式化诗句：按逗号分段
+    function formatContent(text) {
+      if (text.includes('，') || text.includes('。')) {
+        return text.split(/([，。])/).map((part, i) => {
+          if (part === '，' || part === '。') return part;
+          return part;
+        }).join('');
+      }
+      return text;
+    }
+    
+    function init() {
+      const savedName = localStorage.getItem('childName');
+      if (savedName) childNameEl.textContent = savedName;
+      
+      const savedMode = localStorage.getItem('poemMode');
+      if (savedMode) { mode = savedMode; updateModeUI(); }
+      
+      const savedLikes = localStorage.getItem('likedPoems');
+      if (savedLikes) likedPoems = new Set(JSON.parse(savedLikes));
+      
+      createCards();
+      updatePageNum();
+      updateLikedUI();
+      bindEvents();
+    }
+    
+    function createCards() {
+      cardsContainer.innerHTML = '';
+      poems.forEach((poem, idx) => {
+        const bgClass = 'bg-' + (idx + 1);
+        const card = document.createElement('div');
+        card.className = 'poem-card ' + bgClass;
+        card.id = 'card-' + idx;
+        
+        // 格式化显示内容
+        let formattedContent = poem.content;
+        if (formattedContent.includes('，') || formattedContent.includes('。')) {
+          // 在句末标点后添加换行
+          formattedContent = formattedContent.replace(/([，。])/g, '$1<br>');
+        }
+        
+        card.innerHTML = `<div class="poem-title">${poem.title}</div><div class="poem-author">${poem.author}</div><div class="poem-content">${formattedContent}</div>`;
+        cardsContainer.appendChild(card);
+      });
+    }
+    
+    function updatePageNum() {
+      pageNum.textContent = (currentIndex + 1) + '/' + poems.length;
+    }
+    
+    function goToCard(index) {
+      const card = document.getElementById('card-' + index);
+      if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+      updatePageNum();
+      updateLikedUI();
+    }
+    
+    function updateModeUI() {
+      if (mode === 'random') {
+        modeToggle.classList.add('active');
+        modeText.textContent = '随机';
+      } else {
+        modeToggle.classList.remove('active');
+        modeText.textContent = '顺序';
+      }
+      localStorage.setItem('poemMode', mode);
+    }
+    
+    function updateLikedUI() {
+      if (likedPoems.has(currentIndex + 1)) {
+        likeBtn.classList.add('liked');
+      } else {
+        likeBtn.classList.remove('liked');
+      }
+    }
+    
+    function speakPoem() {
+      if (isPlaying) {
+        speechSynthesis.cancel();
+        isPlaying = false;
+        playBtn.classList.remove('active');
+        return;
+      }
+      
+      const poem = poems[currentIndex];
+      const text = poem.title + '，' + poem.author + '。' + poem.content;
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.8;
+      
+      utterance.onend = () => {
+        isPlaying = false;
+        playBtn.classList.remove('active');
+      };
+      
+      speechSynthesis.speak(utterance);
+      isPlaying = true;
+      playBtn.classList.add('active');
+    }
+    
+    function toggleLike() {
+      const poemId = currentIndex + 1;
+      if (likedPoems.has(poemId)) {
+        likedPoems.delete(poemId);
+      } else {
+        likedPoems.add(poemId);
+      }
+      localStorage.setItem('likedPoems', JSON.stringify([...likedPoems]));
+      updateLikedUI();
+    }
+    
+    function bindEvents() {
+      modeToggle.addEventListener('click', () => {
+        mode = mode === 'sequential' ? 'random' : 'sequential';
+        currentIndex = 0;
+        updateModeUI();
+        goToCard(currentIndex);
+      });
+      
+      childNameEl.addEventListener('click', () => {
+        nameInput.value = childNameEl.textContent === '宝宝' ? '' : childNameEl.textContent;
+        nameModal.classList.add('show');
+        nameInput.focus();
+      });
+      
+      saveNameBtn.addEventListener('click', () => {
+        const name = nameInput.value.trim() || '宝宝';
+        childNameEl.textContent = name;
+        localStorage.setItem('childName', name);
+        nameModal.classList.remove('show');
+      });
+      
+      nameModal.addEventListener('click', (e) => { if (e.target === nameModal) nameModal.classList.remove('show'); });
+      playBtn.addEventListener('click', speakPoem);
+      likeBtn.addEventListener('click', toggleLike);
+      
+      let scrollTimeout;
+      cardsContainer.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const width = cardsContainer.offsetWidth;
+          currentIndex = Math.round(cardsContainer.scrollLeft / width);
+          updatePageNum();
+          updateLikedUI();
+        }, 100);
+      }, { passive: true });
+    }
+    
+    init();
+  </script>
+</body>
+</html>

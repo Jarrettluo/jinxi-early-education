@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
+  <!-- 绿水池塘背景 -->
+  <rect width="400" height="600" fill="#e8f5e8"/>
+  
+  <!-- 水面 -->
+  <ellipse cx="200" cy="450" rx="200" ry="150" fill="#81c784" opacity="0.3"/>
+  <ellipse cx="200" cy="480" rx="180" ry="120" fill="#66bb6a" opacity="0.25"/>
+  <ellipse cx="200" cy="520" rx="150" ry="80" fill="#4caf50" opacity="0.2"/>
+  
+  <!-- 水波纹 -->
+  <ellipse cx="150" cy="400" rx="80" ry="20" fill="none" stroke="#a5d6a7" stroke-width="2" opacity="0.5"/>
+  <ellipse cx="250" cy="380" rx="60" ry="15" fill="none" stroke="#a5d6a7" stroke-width="2" opacity="0.4"/>
+  <ellipse cx="180" cy="350" rx="50" ry="12" fill="none" stroke="#a5d6a7" stroke-width="1.5" opacity="0.3"/>
+  
+  <!-- 白鹅轮廓 - 简化版 -->
+  <g transform="translate(200, 300)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="30" rx="45" ry="30" fill="#fff" opacity="0.9"/>
+    <!-- 脖子 -->
+    <path d="M-5 -10 Q-10 -40 -5 -60 Q0 -75 10 -70 Q15 -60 10 -40" fill="#fff" stroke="#fff" stroke-width="20"/>
+    <!-- 头 -->
+    <circle cx="5" cy="-70" r="12" fill="#fff"/>
+    <!-- 嘴 -->
+    <path d="M15 -70 L25 -68 L15 -66 Z" fill="#f5a623"/>
+    <!-- 眼睛 -->
+    <circle cx="8" cy="-73" r="2" fill="#2c1810"/>
+  </g>
+  
+  <!-- 红掌划水 -->
+  <g transform="translate(200, 380)">
+    <path d="M-15 0 Q-20 15 -10 20 Q0 25 10 20 Q20 15 15 0" fill="#ef5350" opacity="0.7"/>
+    <path d="M0 0 L0 20" stroke="#c62828" stroke-width="3" opacity="0.5"/>
+  </g>
+  
+  <!-- 莲花/荷叶 -->
+  <circle cx="80" cy="500" r="25" fill="#66bb6a" opacity="0.4"/>
+  <circle cx="320" cy="480" r="20" fill="#66bb6a" opacity="0.35"/>
+  <circle cx="350" cy="530" r="15" fill="#66bb6a" opacity="0.3"/>
+</svg>
