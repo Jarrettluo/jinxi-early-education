@@ -86,6 +86,7 @@ z-index: 200; opacity: 0; visibility: hidden;
 <div class="top-right">
 <button class="tool-btn" id="likeBtn">收藏</button>
 <button class="tool-btn" id="playBtn">朗读</button>
+<button class="tool-btn" id="autoBtn">自动播放</button>
 </div>
 </div>
 <div class="category-bar" id="categoryBar"></div>
@@ -116,6 +117,8 @@ var tocList = document.getElementById('tocList');
 var tocSearch = document.getElementById('tocSearch');
 var likeBtn = document.getElementById('likeBtn');
 var playBtn = document.getElementById('playBtn');
+var autoBtn = document.getElementById('autoBtn');
+var isAutoPlaying = false;
 function loadData() {
 fetch('stories_0.json').then(function(res) { return res.json(); }).then(function(data) {
 allData = data;
@@ -215,25 +218,98 @@ likeBtn.classList.add('liked');
 likeBtn.classList.remove('liked');
 }
 }
+var currentAudio = null;
+var isAutoPlaying = false;
 function speakStory() {
-if (isPlaying) {
-speechSynthesis.cancel();
+if (currentAudio) {
+currentAudio.pause();
+if (currentAudio.src.startsWith('blob:')) {
+URL.revokeObjectURL(currentAudio.src);
+}
+currentAudio = null;
 isPlaying = false;
-playBtn.classList.remove('active');
+isAutoPlaying = false;
+autoBtn.classList.remove('active');
+autoBtn.textContent = '自动播放';
+playBtn.disabled = false;
+playBtn.textContent = '朗读';
 return;
 }
 var story = filteredData[currentIndex];
 var text = story.title + '。' + story.content;
-var utterance = new SpeechSynthesisUtterance(text);
-utterance.lang = 'zh-CN';
-utterance.rate = 0.8;
-utterance.onend = function() {
+fetch('http://1.14.99.150:6006/tts', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+text: text,
+voice: 'zh-CN-XiaoxiaoNeural',
+rate: '+0%',
+pitch: '+0Hz'
+})
+})
+.then(function(res) { return res.blob(); })
+.then(function(blob) {
+var audio = new Audio(URL.createObjectURL(blob));
+audio.play();
+currentAudio = audio;
+playBtn.textContent = '播放中';
+
+audio.onended = function() {
+if (audio.src.startsWith('blob:')) {
+URL.revokeObjectURL(audio.src);
+}
+currentAudio = null;
 isPlaying = false;
-playBtn.classList.remove('active');
+playBtn.textContent = isAutoPlaying ? '播放中' : '朗读';
+
+if (isAutoPlaying && currentIndex < filteredData.length - 1) {
+currentIndex++;
+var cardWidth = cardsWrapper.offsetWidth;
+cardsWrapper.scrollTo({ left: currentIndex * cardWidth, behavior: 'smooth' });
+updatePageNum();
+setTimeout(speakStory, 500);
+} else if (isAutoPlaying) {
+isAutoPlaying = false;
+autoBtn.classList.remove('active');
+autoBtn.textContent = '自动播放';
+playBtn.disabled = false;
+playBtn.textContent = '朗读';
+}
 };
-speechSynthesis.speak(utterance);
+})
+.catch(function(err) {
+console.error('TTS error:', err);
+currentAudio = null;
+isPlaying = false;
+isAutoPlaying = false;
+autoBtn.classList.remove('active');
+autoBtn.textContent = '自动播放';
+playBtn.disabled = false;
+playBtn.textContent = '朗读';
+});
 isPlaying = true;
-playBtn.classList.add('active');
+}
+function toggleAutoPlay() {
+if (currentAudio) {
+currentAudio.pause();
+if (currentAudio.src.startsWith('blob:')) {
+URL.revokeObjectURL(currentAudio.src);
+}
+currentAudio = null;
+}
+isAutoPlaying = !isAutoPlaying;
+autoBtn.classList.toggle('active', isAutoPlaying);
+autoBtn.textContent = isAutoPlaying ? '停止自动' : '自动播放';
+isPlaying = false;
+playBtn.textContent = '朗读';
+
+if (isAutoPlaying) {
+playBtn.disabled = true;
+playBtn.textContent = '播放中';
+speakStory();
+} else {
+playBtn.disabled = false;
+}
 }
 function toggleLike() {
 var idx = allData.findIndex(function(s) { return s.title === filteredData[currentIndex].title; }) + 1;
@@ -261,6 +337,7 @@ tocSearch.addEventListener('input', function(e) {
 renderTocList(e.target.value);
 });
 playBtn.addEventListener('click', speakStory);
+autoBtn.addEventListener('click', toggleAutoPlay);
 likeBtn.addEventListener('click', toggleLike);
 var scrollTimer;
 cardsWrapper.addEventListener('scroll', function() {
