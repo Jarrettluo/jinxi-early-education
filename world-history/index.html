@@ -39,8 +39,52 @@
     .tool-btn:active { background: rgba(0,0,0,0.05); }
     .tool-btn.liked { color: #e74c3c; }
 
+    .timeline-bar {
+      position: fixed; top: 56px; left: 0; right: 0;
+      background: var(--top-bar-bg);
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      z-index: 90;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .timeline-bar::-webkit-scrollbar { display: none; }
+
+    .timeline {
+      display: flex; align-items: center;
+      padding: 10px 12px;
+      min-width: max-content;
+    }
+
+    .timeline-item {
+      display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; padding: 6px 12px; border-radius: 8px;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .timeline-item:active { background: rgba(0,0,0,0.05); }
+    .timeline-item.active { background: var(--accent); }
+    .timeline-item.active .timeline-label { color: #fff; }
+    .timeline-item.active .timeline-dot { background: #fff; }
+
+    .timeline-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--text-secondary); opacity: 0.4;
+      margin-bottom: 4px; transition: all 0.2s;
+    }
+    .timeline-item.active .timeline-dot { opacity: 1; }
+
+    .timeline-label {
+      font-size: 12px; color: var(--text-secondary);
+      white-space: nowrap; transition: color 0.2s;
+    }
+
+    .timeline-line {
+      width: 20px; height: 2px; background: rgba(0,0,0,0.1);
+      margin: 0 2px;
+    }
+
     .cards-container {
-      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      position: fixed; top: 110px; left: 0; right: 0; bottom: 0;
       display: flex; overflow-x: auto; overflow-y: hidden;
       scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
@@ -96,6 +140,10 @@
     </div>
   </div>
 
+  <div class="timeline-bar" id="timelineBar">
+    <div class="timeline" id="timeline"></div>
+  </div>
+
   <div class="cards-container" id="cardsContainer"></div>
   <div class="swipe-hint">← 左右滑动 →</div>
 
@@ -137,17 +185,66 @@
     let likedItems = new Set();
 
     const cardsContainer = document.getElementById('cardsContainer');
+    const timeline = document.getElementById('timeline');
     const pageNum = document.getElementById('pageNum');
     const playBtn = document.getElementById('playBtn');
     const autoBtn = document.getElementById('autoBtn');
     const likeBtn = document.getElementById('likeBtn');
     let isAutoPlaying = false;
 
+    // Extract unique regions with their start index
+    function getRegions() {
+      const regions = [];
+      let lastRegion = '';
+      historyData.forEach((item, idx) => {
+        if (item.region !== lastRegion) {
+          regions.push({ name: item.region, startIdx: idx });
+          lastRegion = item.region;
+        }
+      });
+      return regions;
+    }
+
+    function renderTimeline() {
+      const regions = getRegions();
+      timeline.innerHTML = regions.map((r, i) => {
+        const isActive = historyData[currentIndex].region === r.name;
+        return '<div class="timeline-item' + (isActive ? ' active' : '') + '" data-idx="' + r.startIdx + '">' +
+          '<div class="timeline-dot"></div>' +
+          '<div class="timeline-label">' + r.name + '</div>' +
+        '</div>' + (i < regions.length - 1 ? '<div class="timeline-line"></div>' : '');
+      }).join('');
+
+      timeline.querySelectorAll('.timeline-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.getAttribute('data-idx'));
+          goToCard(idx);
+        });
+      });
+    }
+
+    function updateTimeline() {
+      const regions = getRegions();
+      const currentRegion = historyData[currentIndex].region;
+      timeline.querySelectorAll('.timeline-item').forEach(el => {
+        const idx = parseInt(el.getAttribute('data-idx'));
+        const itemRegion = historyData[idx].region;
+        el.classList.toggle('active', itemRegion === currentRegion);
+      });
+
+      // Scroll timeline to show active item
+      const activeItem = timeline.querySelector('.timeline-item.active');
+      if (activeItem) {
+        activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+
     function init() {
       const savedLikes = localStorage.getItem('likedHistoryWorld');
       if (savedLikes) likedItems = new Set(JSON.parse(savedLikes));
 
       createCards();
+      renderTimeline();
       updatePageNum();
       updateLikedUI();
       bindEvents();
@@ -178,6 +275,7 @@
       if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'start' });
       updatePageNum();
       updateLikedUI();
+      updateTimeline();
     }
 
     function updateLikedUI() {
@@ -295,9 +393,13 @@
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
           const width = cardsContainer.offsetWidth;
-          currentIndex = Math.round(cardsContainer.scrollLeft / width);
-          updatePageNum();
-          updateLikedUI();
+          const newIndex = Math.round(cardsContainer.scrollLeft / width);
+          if (newIndex !== currentIndex) {
+            currentIndex = newIndex;
+            updatePageNum();
+            updateLikedUI();
+            updateTimeline();
+          }
         }, 100);
       }, { passive: true });
     }

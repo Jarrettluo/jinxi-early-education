@@ -37,49 +37,71 @@
         }
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
             width: 100%;
         }
         .card {
             background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
+            border-radius: 16px;
+            padding: 25px 15px;
             text-decoration: none;
             color: #333;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
             transition: transform 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        .card:active {
+            transform: scale(0.98);
         }
         .card-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            font-size: 2.8rem;
+            margin-bottom: 12px;
         }
         .card-title {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #333;
         }
         .card-desc {
             color: #666;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
-        .poetry-card .card-icon { color: #e74c3c; }
-        .encyclopedia-card .card-icon { color: #3498db; }
-        .history-card .card-icon { color: #8B4513; }
-        .world-card .card-icon { color: #27ae60; }
-        
-        @media (max-width: 600px) {
-            h1 { font-size: 1.8rem; }
-            .cards { gap: 20px; }
-            .card { padding: 30px 20px; }
+
+        @media (max-width: 480px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+            .subtitle { font-size: 1rem; margin-bottom: 2rem; }
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .card {
+                border-radius: 14px;
+                padding: 20px 12px;
+            }
+            .card-icon { font-size: 2.4rem; margin-bottom: 10px; }
+            .card-title { font-size: 1rem; margin-bottom: 6px; }
+            .card-desc { font-size: 0.8rem; }
+        }
+
+        @media (max-width: 360px) {
+            .cards { gap: 10px; }
+            .card { padding: 16px 10px; }
+            .card-icon { font-size: 2rem; }
+            .card-title { font-size: 0.9rem; }
+        }
+
+        @media (min-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .cards { gap: 25px; }
+            .card { padding: 40px 30px; }
+            .card-icon { font-size: 3.5rem; }
+            .card-title { font-size: 1.4rem; }
         }
     </style>
 </head>
