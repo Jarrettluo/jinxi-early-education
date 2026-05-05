@@ -37,8 +37,8 @@
         }
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
             width: 100%;
         }
         .card {
@@ -73,6 +73,8 @@
         }
         .poetry-card .card-icon { color: #e74c3c; }
         .encyclopedia-card .card-icon { color: #3498db; }
+        .history-card .card-icon { color: #8B4513; }
+        .world-card .card-icon { color: #27ae60; }
         
         @media (max-width: 600px) {
             h1 { font-size: 1.8rem; }
@@ -92,7 +94,19 @@
                 <h2 class="card-title">诗词歌赋</h2>
                 <p class="card-desc">经典唐诗宋词<br>感受中华文化魅力</p>
             </a>
-            
+
+            <a href="chinese-history/" class="card history-card">
+                <span class="card-icon">🏺</span>
+                <h2 class="card-title">中国历史</h2>
+                <p class="card-desc">华夏五千年文明<br>按朝代编年展开</p>
+            </a>
+
+            <a href="world-history/" class="card world-card">
+                <span class="card-icon">🌍</span>
+                <h2 class="card-title">世界历史</h2>
+                <p class="card-desc">环球文明之旅<br>探索人类发展</p>
+            </a>
+
             <a href="kids-encyclopedia/" class="card encyclopedia-card">
                 <span class="card-icon">🔬</span>
                 <h2 class="card-title">少儿百科</h2>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>中国历史</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg-1: #fdf6e3; --bg-2: #fef5f5; --bg-3: #f5f9ff; --bg-4: #f0fff0;
+      --bg-5: #fff8f0; --bg-6: #f0f5ff; --bg-7: #fff0f5; --bg-8: #f5fff8;
+      --bg-9: #fff5f0; --bg-10: #f8f5ff; --bg-11: #fdf6e3; --bg-12: #fef5f5;
+      --bg-13: #f5f9ff; --bg-14: #f0fff0; --bg-15: #fff8f0; --bg-16: #f0f5ff;
+      --text-primary: #2c1810; --text-secondary: #6b5344; --accent: #8B4513;
+      --top-bar-bg: rgba(255,255,255,0.95);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Noto Serif SC', 'Songti SC', serif; color: var(--text-primary); }
+
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      padding: 0 16px; padding-top: env(safe-area-inset-top, 10px);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--top-bar-bg); backdrop-filter: blur(10px); z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .top-left { display: flex; flex-direction: column; gap: 1px; }
+    .app-name { font-family: 'ZCOOL XiaoWei', serif; font-size: 17px; color: var(--accent); font-weight: bold; }
+
+    .top-right { display: flex; align-items: center; gap: 6px; }
+    .page-num { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .tool-btn { padding: 6px 12px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-size: 13px; color: var(--text-secondary); }
+    .tool-btn:active { background: rgba(0,0,0,0.05); }
+    .tool-btn.liked { color: #e74c3c; }
+
+    .mode-toggle {
+      display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+      border: 1px solid var(--text-secondary); border-radius: 14px;
+      background: transparent; font-size: 11px; color: var(--text-secondary); cursor: pointer;
+    }
+    .mode-toggle.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .cards-container {
+      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      display: flex; overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    .history-card {
+      min-width: 100%; height: 100%; scroll-snap-align: start;
+      padding: 20px 24px 60px;
+      padding-top: calc(20px + env(safe-area-inset-top, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 60px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start; gap: 14px;
+    }
+
+    .history-card.bg-1 { background: var(--bg-1); }
+    .history-card.bg-2 { background: var(--bg-2); }
+    .history-card.bg-3 { background: var(--bg-3); }
+    .history-card.bg-4 { background: var(--bg-4); }
+    .history-card.bg-5 { background: var(--bg-5); }
+    .history-card.bg-6 { background: var(--bg-6); }
+    .history-card.bg-7 { background: var(--bg-7); }
+    .history-card.bg-8 { background: var(--bg-8); }
+    .history-card.bg-9 { background: var(--bg-9); }
+    .history-card.bg-10 { background: var(--bg-10); }
+    .history-card.bg-11 { background: var(--bg-11); }
+    .history-card.bg-12 { background: var(--bg-12); }
+    .history-card.bg-13 { background: var(--bg-13); }
+    .history-card.bg-14 { background: var(--bg-14); }
+    .history-card.bg-15 { background: var(--bg-15); }
+    .history-card.bg-16 { background: var(--bg-16); }
+
+    .period-tag {
+      font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
+      padding: 4px 10px; border: 1px solid var(--accent); border-radius: 12px;
+    }
+    .era-title { font-size: 28px; font-weight: 700; text-align: center; }
+    .story-title { font-size: 20px; font-weight: 600; text-align: center; color: var(--text-secondary); margin-top: 4px; }
+    .story-content { font-size: 17px; line-height: 2; text-align: justify; max-width: 90%; white-space: pre-line; text-indent: 2em; }
+
+    .swipe-hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--text-secondary); opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="app-name" id="appName">中国历史</div>
+    </div>
+    <div class="top-right">
+      <span class="page-num" id="pageNum">1/30</span>
+      <button class="tool-btn" id="likeBtn">收藏</button>
+      <button class="tool-btn" id="playBtn">朗读</button>
+      <button class="tool-btn" id="autoBtn">自动播放</button>
+    </div>
+  </div>
+
+  <div class="cards-container" id="cardsContainer"></div>
+  <div class="swipe-hint">← 左右滑动 →</div>
+
+  <script>
+    const historyData = [
+      { period: "远古时期", era: "盘古开天", title: "神话传说", content: "传说天地最初像一个大鸡蛋，盘古在鸡蛋里睡了一万八千年。醒来后，他用斧头劈开鸡蛋，轻的上升变成天，重的下降变成地。盘古每天长高一丈，天地就相隔一丈。就这样过了一万八千年，天地终于分开，盘古也累得倒下了。他的眼睛变成太阳和月亮，身体变成山川河流，头发变成星星。" },
+      { period: "远古时期", era: "女娲造人", title: "神话传说", content: "女娲是一位人身蛇尾的女神。她觉得世界太安静了，就用黄土捏成小人，吹一口气，小人就活了。后来她用绳子蘸泥浆甩出无数泥点，这些泥点也变成了人。为了让人类世世代代延续，女娲建立了婚姻制度，让男女互相婚配，生儿育女。" },
+      { period: "远古时期", era: "大禹治水", title: "夏朝建立", content: "舜帝时期，洪水泛滥，百姓受灾。鲧受命治水，用堵截的方法失败被杀。他的儿子禹继承父业，改用疏导的方法，带领百姓走遍山川大地，疏通河道，最终制服了洪水。禹三过家门而不入，一心为民。舜因此禅让帝位给禹，禹建立夏朝，这是中国第一个王朝。" },
+      { period: "夏商周", era: "商朝兴衰", title: "青铜文明", content: "夏朝末年，夏桀暴政，商部落首领汤起兵灭夏，建立商朝。商朝以青铜器闻名，司母戊鼎、四羊方尊等青铜器工艺精湛。商朝人信奉鬼神，用甲骨占卜。商朝末期，纣王残暴，周武王在牧野之战大败商军，纣王自焚，商朝灭亡。" },
+      { period: "夏商周", era: "武王伐纣", title: "周朝建立", content: "周文王姬昌在位时，以德服人，天下诸侯归心。他死后，儿子武王姬发继位，联合各诸侯讨伐商纣。牧野之战，周军大胜，商朝灭亡。武王建立周朝，定都镐京。为了巩固统治，周朝实行分封制，将土地分给宗室和功臣。" },
+      { period: "夏商周", era: "烽火戏诸侯", title: "西周灭亡", content: "周幽王宠爱褒姒，想尽办法让她笑。褒姒不喜欢笑，大臣虁石父献计，在骊山点燃烽火，诸侯以为敌人来犯，纷纷带兵赶来，却发现是骗局。褒姒看到诸侯狼狈的样子，终于笑了。后来犬戎真的进攻，幽王点燃烽火，却没有诸侯来救，西周灭亡。" },
+      { period: "春秋战国", era: "春秋五霸", title: "群雄争霸", content: "东周分为春秋和战国两个时期。齐桓公在管仲辅佐下，成为春秋第一位霸主，打出\"尊王攘夷\"的旗号。晋文公重耳流亡十九年，后在秦穆公帮助下回国为君，成为第二位霸主。此外还有楚庄王、吴王阖闾、越王勾践先后称霸，史称\"春秋五霸\"。" },
+      { period: "春秋战国", era: "孔子周游", title: "儒家起源", content: "孔子名丘，字仲尼，出身于鲁国。他看到周礼衰落，立志恢复周礼，带着弟子周游列国，希望得到君主重用推行仁政。但他的学说在当时不被采纳。回到鲁国后，孔子专心教育，整理《诗》《书》《礼》《乐》《易》《春秋》六经，成为儒家学派创始人，被尊为\"万世师表\"。" },
+      { period: "春秋战国", era: "商鞅变法", title: "秦国崛起", content: "秦孝公重用商鞅进行变法。商鞅废除井田制，奖励耕战，推行县制，建立连坐法。秦国因此变得富裕强大。商鞅严格执法，不避亲贵，连太子犯法也惩处了太子的老师。虽然后来商鞅被车裂，但新法继续推行，秦国最终统一六国。" },
+      { period: "春秋战国", era: "完璧归赵", title: "蔺相如", content: "赵国得到和氏璧，秦王想用十五座城交换。蔺相如奉命带着和氏璧出使秦国，发现秦王没有诚意，就以命相搏，完璧归赵渑池之会上，蔺相如又立下大功，被封为上卿，位在老将廉颇之上。廉颇不服，想找机会羞辱他。蔺相如以国家为重，处处忍让。廉颇得知后，负荆请罪，两人成为生死之交。" },
+      { period: "秦汉", era: "秦始皇统一", title: "秦朝建立", content: "秦王赢政十年征战，先后灭韩、赵、魏、楚、燕、齐，于公元前221年统一六国，建立秦朝。他自称\"始皇帝\"，统一度量衡、货币、文字，修筑长城、驰道，实行郡县制。但秦朝暴政，刑罚残酷，赋税繁重，百姓不堪重负。" },
+      { period: "秦汉", era: "陈胜吴广", title: "大泽乡起义", content: "秦朝末年，暴雨误期，按律当斩。陈胜、吴广在大泽乡揭竿而起，高呼\"王侯将相，宁有种乎\"。起义军迅速壮大，但最终失败。不过它拉开了推翻秦朝的序幕，项羽、刘邦等豪杰纷纷响应。" },
+      { period: "秦汉", era: "楚汉相争", title: "刘邦建汉", content: "项羽和刘邦约定，谁先攻入咸阳谁为王。项羽在巨鹿歼灭秦军主力，刘邦则抢先进入咸阳，废除秦朝苛法，还军霸上。项羽分封诸侯，封刘邦为汉王。后来双方决战，刘邦在垓下之围四面楚歌，项羽乌江自刎。刘邦建立汉朝，定都长安。" },
+      { period: "秦汉", era: "文景之治", title: "汉朝盛世", content: "汉高祖之后，历经吕后之乱，代王刘恒被立为帝，是为汉文帝。文帝之子景帝继续奉行与民休息的政策，减轻赋税，废除肉刑，出现安定繁荣的局面，历史上称为\"文景之治\"。这是中国历史上第一个盛世，为汉武帝的大规模对外征伐奠定了基础。" },
+      { period: "秦汉", era: "丝绸之路", title: "张骞出使", content: "汉武帝派张骞出使西域，联合月氏夹击匈奴。张骞出使途中被匈奴扣留十年，逃出后继续西行，到达大月氏。但月氏已无意报复匈奴，张骞只好返回。虽未完成使命，但他带回了西域各国情报，为丝绸之路开通创造了条件。此后，丝绸之路成为东西方贸易和文化交流的重要通道。" },
+      { period: "三国两晋", era: "曹操崛起", title: "官渡之战", content: "东汉末年，天下大乱。曹操迎汉献帝迁都许昌，\"挟天子以令诸侯\"。他重用人才，在官渡之战以少胜多，大败袁绍军队，统一北方。曹操善用谋略，精通兵法，写下《孙子略解》《兵书接要》等军事著作。但赤壁之战被孙刘联军击败，未能一统天下。" },
+      { period: "三国两晋", era: "刘备三顾", title: "蜀汉建立", content: "刘备三顾茅庐，请出诸葛亮为军师。诸葛亮在隆中对中提出占据荆益、联合孙权、北伐中原的策略。刘备在赤壁之战后占据荆州、益州，公元221年称帝，建立蜀汉。诸葛亮辅佐刘禅，鞠躬尽瘁，六出祁山，意图恢复汉室，最终病逝五丈原。" },
+      { period: "三国两晋", era: "孙权建国", title: "东吴基业", content: "孙权继承父兄基业，在周瑜、鲁肃、陆逊等谋臣武将辅佐下，割据江东。赤壁之战大败曹操，又在夷陵之战击败刘备，稳固了东吴统治。孙权重视发展海外贸易，与朝鲜半岛、日本列岛有密切往来，开创了江南经济繁荣的局面。" },
+      { period: "三国两晋", era: "八王之乱", title: "西晋内乱", content: "西晋建立后，晋武帝分封宗室为王，以为屏卫。但他死后，儿子晋惠帝昏庸，皇后贾南风专权，引发八王之乱。各诸侯王互相攻伐，中原空虚，北方游牧民族趁机入侵，西晋最终灭亡，大量北方士族和百姓南渡长江，是为\"衣冠南渡\"。" },
+      { period: "南北朝", era: "淝水之战", title: "东晋存亡", content: "前秦苻坚统一北方后，率百万大军南征。东晋谢安、谢玄率八万北府兵迎战，在淝水大败前秦。苻坚登高望见晋军阵容整齐，以为八公山上草木皆兵，惊慌失措。此战后，前秦元气大伤，重新陷入分裂，东晋得以保全，江南经济继续发展。" },
+      { period: "隋唐", era: "隋炀帝", title: "大运河开通", content: "隋炀帝杨广下令开凿大运河，动用民夫数百万人。大运河以洛阳为中心，北抵涿郡，南达余杭，全长两千多公里，是世界上最长的运河。大运河连接了海河、黄河、淮河、长江、钱塘江五大水系，促进了南北经济文化交流。但隋炀帝滥用民力，三征高句丽，最终身死国灭。" },
+      { period: "隋唐", era: "玄武门之变", title: "唐朝建立", content: "李渊在太原起兵，攻入长安，建立唐朝。武德九年，秦王李世民在玄武门发动政变，杀死太子李建成和齐王李元吉。李渊被迫退位，李世民登基，是为唐太宗。李世民虚心纳谏，任用贤才，开创\"贞观之治\"，唐朝走向繁荣昌盛。" },
+      { period: "隋唐", era: "玄奘西行", title: "取经之路", content: "唐代高僧玄奘为求取佛经，独自一人西行取经。他穿过沙漠，翻越高山，历经千辛万苦，到达天竺。在天竺学习佛经十余年后，携带六百余部佛经回国，在慈恩寺翻译佛经，传播佛教文化。他根据亲身经历写成《大唐西域记》，成为研究古代中亚和印度历史的重要文献。" },
+      { period: "隋唐", era: "武则天", title: "女皇传奇", content: "武则天是中国历史上唯一的女皇帝。她最初为唐高宗皇后，帮助处理政务。高宗死后，她先后废立中宗、睿宗，自己称帝，改国号为周。她打击门阀士族，提拔寒门人才，重用狄仁杰等贤臣。虽然晚年生活奢侈，但统治期间经济继续发展，人口增长。" },
+      { period: "隋唐", era: "开元盛世", title: "大唐繁荣", content: "唐玄宗开元年间，任用姚崇、宋璟等贤相，励精图治，天下太平，史称\"开元盛世\"。长安城是当时世界上最繁华的城市，各国使节、商人、僧侣云集。诗歌、绘画、书法艺术达到高峰，涌现出李白、杜甫、王维等伟大诗人，以及吴道子等画家。" },
+      { period: "宋元", era: "岳飞抗金", title: "精忠报国", content: "北宋末年，金军南侵，岳飞投军抗金。他训练岳家军纪律严明，作战勇敢，收复建康、襄阳等重镇。金军感叹\"撼山易，撼岳家军难\"。正当岳飞准备直捣黄龙时，宋高宗和秦桧连发十二道金牌召回岳飞，以\"莫须有\"罪名将其杀害。岳飞以\"还我河山\"和\"精忠报国\"的精神激励后世。" },
+      { period: "宋元", era: "成吉思汗", title: "蒙古帝国", content: "铁木真统一蒙古各部，被尊为成吉思汗。他建立怯薛军，灭西辽、花剌子模，征服中亚。他的孙子忽必烈建立元朝，统一中国。元朝疆域空前广大，从东海到多瑙河，都是蒙古帝国的版图。但元朝民族分化严重，统治残暴，最终被农民起义推翻。" },
+      { period: "宋元", era: "文天祥", title: "正气歌", content: "元军南下，文天祥散尽家财招募抗元义军。被俘后，他拒绝投降，写下《正气歌》：\"天地有正气，杂然赋流形。下则为河岳，上则为日星。\"元朝许以高官厚禄，文天祥不为所动：\"人生自古谁无死，留取丹心照汗青。\"最终慷慨就义，激励了无数后人。" },
+      { period: "明清", era: "郑和下西洋", title: "航海壮举", content: "明成祖派郑和率船队出使西洋。郑和率舰队两万多人，分乘六十余艘大船，从苏州出发，历经越南、马来西亚、印度、阿拉伯半岛，最远到达非洲东海岸。郑和下西洋展示了大明国威，促进了中外贸易和文化交流，比哥伦布发现美洲早了近百年。" },
+      { period: "明清", era: "郑成功收台", title: "宝岛回归", content: "明朝灭亡后，郑成功在东南沿海抗清失败，决定收复被荷兰殖民者占领的台湾。他率军进攻台湾，围困荷兰殖民者九个月，荷兰总督投降，台湾重回祖国怀抱。郑成功在台湾建立政权，推广教育，发展经济，为台湾开发做出重大贡献。" },
+      { period: "明清", era: "康乾盛世", title: "清代繁荣", content: "康熙皇帝擒鳌拜、平三藩、收台湾、抗沙俄，功绩卓著。雍正帝勤于政务，推行改革。乾隆帝在康熙、雍正基础上，领土广阔，人口众多，库存充裕，是中国封建社会最后一个盛世。但乾隆后期吏治腐败，西方列强虎视眈眈，清朝逐渐衰落。" }
+    ];
+
+    let currentIndex = 0;
+    let likedItems = new Set();
+
+    const cardsContainer = document.getElementById('cardsContainer');
+    const pageNum = document.getElementById('pageNum');
+    const playBtn = document.getElementById('playBtn');
+    const autoBtn = document.getElementById('autoBtn');
+    const likeBtn = document.getElementById('likeBtn');
+    let isAutoPlaying = false;
+
+    function init() {
+      const savedLikes = localStorage.getItem('likedHistoryCN');
+      if (savedLikes) likedItems = new Set(JSON.parse(savedLikes));
+
+      createCards();
+      updatePageNum();
+      updateLikedUI();
+      bindEvents();
+    }
+
+    function createCards() {
+      cardsContainer.innerHTML = '';
+      historyData.forEach((item, idx) => {
+        const bgClass = 'bg-' + ((idx % 16) + 1);
+        const card = document.createElement('div');
+        card.className = 'history-card ' + bgClass;
+        card.id = 'card-' + idx;
+
+        card.innerHTML = '<div class="period-tag">' + item.period + '</div>' +
+          '<div class="era-title">' + item.era + '</div>' +
+          '<div class="story-title">' + item.title + '</div>' +
+          '<div class="story-content">' + item.content + '</div>';
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    function updatePageNum() {
+      pageNum.textContent = (currentIndex + 1) + '/' + historyData.length;
+    }
+
+    function goToCard(index) {
+      const card = document.getElementById('card-' + index);
+      if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+      updatePageNum();
+      updateLikedUI();
+    }
+
+    function updateLikedUI() {
+      if (likedItems.has(currentIndex + 1)) {
+        likeBtn.classList.add('liked');
+      } else {
+        likeBtn.classList.remove('liked');
+      }
+    }
+
+    let currentAudio = null;
+
+    function speakContent() {
+      if (currentAudio) {
+        currentAudio.pause();
+        URL.revokeObjectURL(currentAudio.src);
+        currentAudio = null;
+        isAutoPlaying = false;
+        autoBtn.classList.remove('active');
+        autoBtn.textContent = '自动播放';
+        playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+        return;
+      }
+
+      playBtn.disabled = true;
+      playBtn.textContent = '请稍候';
+
+      const item = historyData[currentIndex];
+      const text = item.era + '，' + item.title + '。' + item.content;
+
+      fetch('http://1.14.99.150:6006/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          voice: 'zh-CN-XiaoxiaoNeural',
+          rate: '+0%',
+          pitch: '+0Hz'
+        })
+      })
+      .then(res => res.blob())
+      .then(blob => {
+        const audio = new Audio(URL.createObjectURL(blob));
+        audio.play();
+        currentAudio = audio;
+        playBtn.disabled = false;
+        playBtn.textContent = '停止';
+
+        audio.onended = () => {
+          URL.revokeObjectURL(audio.src);
+          currentAudio = null;
+          playBtn.textContent = '朗读';
+
+          if (isAutoPlaying && currentIndex < historyData.length - 1) {
+            currentIndex++;
+            goToCard(currentIndex);
+            speakContent();
+          } else if (isAutoPlaying) {
+            isAutoPlaying = false;
+            autoBtn.classList.remove('active');
+            autoBtn.textContent = '自动播放';
+            playBtn.disabled = false;
+          }
+        };
+      })
+      .catch(err => {
+        console.error('TTS error:', err);
+        currentAudio = null;
+        playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+      });
+    }
+
+    function toggleAutoPlay() {
+      if (currentAudio) {
+        currentAudio.pause();
+        URL.revokeObjectURL(currentAudio.src);
+        currentAudio = null;
+      }
+      isAutoPlaying = !isAutoPlaying;
+      autoBtn.classList.toggle('active', isAutoPlaying);
+      autoBtn.textContent = isAutoPlaying ? '停止自动' : '自动播放';
+
+      if (isAutoPlaying) {
+        playBtn.disabled = true;
+        playBtn.textContent = '请稍候';
+        autoBtn.disabled = true;
+        speakContent();
+      } else {
+        playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+        autoBtn.disabled = false;
+      }
+    }
+
+    function toggleLike() {
+      const itemId = currentIndex + 1;
+      if (likedItems.has(itemId)) {
+        likedItems.delete(itemId);
+      } else {
+        likedItems.add(itemId);
+      }
+      localStorage.setItem('likedHistoryCN', JSON.stringify([...likedItems]));
+      updateLikedUI();
+    }
+
+    function bindEvents() {
+      playBtn.addEventListener('click', speakContent);
+      autoBtn.addEventListener('click', toggleAutoPlay);
+      likeBtn.addEventListener('click', toggleLike);
+
+      let scrollTimeout;
+      cardsContainer.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const width = cardsContainer.offsetWidth;
+          currentIndex = Math.round(cardsContainer.scrollLeft / width);
+          updatePageNum();
+          updateLikedUI();
+        }, 100);
+      }, { passive: true });
+    }
+
+    init();
+  </script>
+</body>
+</html>

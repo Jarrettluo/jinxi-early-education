@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>世界历史</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg-1: #fef5f5; --bg-2: #f5f9ff; --bg-3: #f0fff0; --bg-4: #fff8f0;
+      --bg-5: #f0f5ff; --bg-6: #fff0f5; --bg-7: #f5fff8; --bg-8: #fff5f0;
+      --bg-9: #f8f5ff; --bg-10: #fdf6e3; --bg-11: #fef5f5; --bg-12: #f5f9ff;
+      --bg-13: #f0fff0; --bg-14: #fff8f0; --bg-15: #f0f5ff; --bg-16: #fff0f5;
+      --text-primary: #2c1810; --text-secondary: #6b5344; --accent: #2c5f8a;
+      --top-bar-bg: rgba(255,255,255,0.95);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Noto Serif SC', 'Songti SC', serif; color: var(--text-primary); }
+
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      padding: 0 16px; padding-top: env(safe-area-inset-top, 10px);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--top-bar-bg); backdrop-filter: blur(10px); z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .top-left { display: flex; flex-direction: column; gap: 1px; }
+    .app-name { font-family: 'ZCOOL XiaoWei', serif; font-size: 17px; color: var(--accent); font-weight: bold; }
+
+    .top-right { display: flex; align-items: center; gap: 6px; }
+    .page-num { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .tool-btn { padding: 6px 12px; border: none; border-radius: 8px; background: transparent; cursor: pointer; font-size: 13px; color: var(--text-secondary); }
+    .tool-btn:active { background: rgba(0,0,0,0.05); }
+    .tool-btn.liked { color: #e74c3c; }
+
+    .cards-container {
+      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      display: flex; overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    .history-card {
+      min-width: 100%; height: 100%; scroll-snap-align: start;
+      padding: 20px 24px 60px;
+      padding-top: calc(20px + env(safe-area-inset-top, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 60px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start; gap: 14px;
+    }
+
+    .history-card.bg-1 { background: var(--bg-1); }
+    .history-card.bg-2 { background: var(--bg-2); }
+    .history-card.bg-3 { background: var(--bg-3); }
+    .history-card.bg-4 { background: var(--bg-4); }
+    .history-card.bg-5 { background: var(--bg-5); }
+    .history-card.bg-6 { background: var(--bg-6); }
+    .history-card.bg-7 { background: var(--bg-7); }
+    .history-card.bg-8 { background: var(--bg-8); }
+    .history-card.bg-9 { background: var(--bg-9); }
+    .history-card.bg-10 { background: var(--bg-10); }
+    .history-card.bg-11 { background: var(--bg-11); }
+    .history-card.bg-12 { background: var(--bg-12); }
+    .history-card.bg-13 { background: var(--bg-13); }
+    .history-card.bg-14 { background: var(--bg-14); }
+    .history-card.bg-15 { background: var(--bg-15); }
+    .history-card.bg-16 { background: var(--bg-16); }
+
+    .region-tag {
+      font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
+      padding: 4px 10px; border: 1px solid var(--accent); border-radius: 12px;
+    }
+    .era-title { font-size: 28px; font-weight: 700; text-align: center; }
+    .story-title { font-size: 20px; font-weight: 600; text-align: center; color: var(--text-secondary); margin-top: 4px; }
+    .story-content { font-size: 17px; line-height: 2; text-align: justify; max-width: 90%; white-space: pre-line; text-indent: 2em; }
+
+    .swipe-hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--text-secondary); opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="app-name" id="appName">世界历史</div>
+    </div>
+    <div class="top-right">
+      <span class="page-num" id="pageNum">1/30</span>
+      <button class="tool-btn" id="likeBtn">收藏</button>
+      <button class="tool-btn" id="playBtn">朗读</button>
+      <button class="tool-btn" id="autoBtn">自动播放</button>
+    </div>
+  </div>
+
+  <div class="cards-container" id="cardsContainer"></div>
+  <div class="swipe-hint">← 左右滑动 →</div>
+
+  <script>
+    const historyData = [
+      { region: "古代埃及", era: "金字塔", title: "法老的陵墓", content: "古埃及文明始于尼罗河流域。法老们为了死后灵魂安息，建造了巨大的金字塔。胡夫金字塔高146米，由230万块石头堆成，每块石头平均重2.5吨。据说十万工匠花了二十年才建成。金字塔是古代世界七大奇迹之一，至今仍屹立在沙漠中。" },
+      { region: "古代埃及", era: "木乃伊", title: "永恒的守护", content: "古埃及人相信死后可以复活，所以把尸体制成木乃伊保存。制作木乃伊需要七十天，先取出内脏放在罐子里，再把尸体用盐水浸泡，最后用亚麻布包裹。法老的木乃伊放在金字塔深处的墓室里，守护着死后的永恒世界。" },
+      { region: "古代巴比伦", era: "汉谟拉比", title: "法典刻石", content: "巴比伦国王汉谟拉比建立了古巴比伦王国。他制定了一部法典，刻在黑色石柱上，是世界上第一部完整的成文法典。法典规定\"以眼还眼，以牙还牙\"的原则，保护了当时的社会秩序。这根石柱现存于卢浮宫，是珍贵的历史文物。" },
+      { region: "古代印度", era: "佛陀悟道", title: "佛教起源", content: "释迦牟尼出生于古印度迦毗罗卫国，是王子。他目睹人生老病死的痛苦，放弃王位出家修行。在菩提树下静坐四十九天后，终于悟道成佛，创立了佛教。佛教主张众生平等，提倡慈悲为怀，后来传播到中国、日本、东南亚等地，成为世界性宗教。" },
+      { region: "古代希腊", era: "马拉松", title: "波斯战争", content: "公元前490年，波斯大军入侵希腊，在马拉松平原与雅典军队相遇。雅典以少胜多，打败了波斯军。为了把胜利消息尽快告诉雅典人，士兵菲迪皮茨从马拉松跑回雅典，喊完\"我们胜利了\"就倒下了。为了纪念这次战役和菲迪皮茨，现代设置了马拉松赛跑。" },
+      { region: "古代希腊", era: "斯巴达300勇士", title: "温泉关战役", content: "公元前480年，波斯国王薛西斯率百万大军入侵希腊。斯巴达国王列奥尼达率300名斯巴达战士，与数千希腊联军扼守温泉关。因叛徒告密，波斯军绕道偷袭，列奥尼达让联军撤退，自己率300勇士死守关口，全部战死。波斯军虽然通过，但损失惨重，为希腊联军赢得了时间。" },
+      { region: "古代希腊", era: "伯里克利", title: "雅典黄金时代", content: "伯里克利是雅典的领袖，在他统治时期，雅典达到鼎盛。他建造了壮丽的帕特农神庙，举办奥林匹克运动会，奖励艺术创作。雅典成为当时世界的文化中心，诞生了苏格拉底、柏拉图、亚里士多德等伟大哲学家，奠定了西方文明的基础。" },
+      { region: "古代罗马", era: "凯撒大帝", title: "罗马崛起", content: "凯撒是古罗马的伟大统帅和政治家。他征服高卢，渡过卢比孔河，在法萨卢斯战役击败庞培，奠定了罗马帝国的雏形。凯撒进行了多项改革，如颁行儒略历、建立殖民地等。但他的独裁统治引起元老院不满，公元前44年，凯撒在元老院被刺杀身亡。" },
+      { region: "古代罗马", era: "庞贝古城", title: "维苏威火山", content: "公元79年，维苏威火山爆发，掩埋了庞贝古城。火山灰和碎石将城市完整封存了两千年。直到18世纪，考古学家才重新发掘这座古城。庞贝古城保存了完整的街道、房屋、公共浴场、竞技场，让后人得以了解古罗马人的日常生活。城墙上的涂鸦、面包房的烤炉都完好如初。" },
+      { region: "古代罗马", era: "君士坦丁", title: "基督教合法化", content: "罗马皇帝君士坦丁在313年颁布《米兰敕令》，承认基督教的合法地位。此后基督教从被迫害的地下宗教变成罗马帝国的国教。君士坦丁还迁都拜占庭，命名为君士坦丁堡，为东罗马帝国奠定了基础。他的统治标志着罗马帝国和基督教世界的深刻变革。" },
+      { region: "中世纪欧洲", era: "查理曼大帝", title: "加冕称帝", content: "查理曼是法兰克王国的国王，他征服了西欧大部分地区，建立了强大的法兰克帝国。公元800年圣诞节，教皇在罗马为他加冕为\"罗马人的皇帝\"。查理曼推广基督教，奖励教育，使用拉丁文书写，建立了中世纪欧洲的基本框架。但他死后，帝国很快分裂成三个王国。" },
+      { region: "中世纪欧洲", era: "十字军东征", title: "圣城耶路撒冷", content: "1096年，教皇乌尔班二世号召基督徒夺回耶路撒冷，发动了长达两百年的十字军东征。十字军骑士身穿十字标记的白色外套，从欧洲出发，穿越沙漠，攻占了耶路撒冷。但他们建立的十字军王国很快被伊斯兰势力包围，最终全部失守。十字军东征客观上促进了东西方文化交流。" },
+      { region: "中世纪欧洲", era: "黑死病", title: "鼠疫灾难", content: "1347年，鼠疫从东方沿着商路传入欧洲。这种可怕的疾病从意大利蔓延到整个大陆，在五年内夺走了两千五百万人的生命，相当于欧洲三分之一的人口。村庄被遗弃，农田荒芜，教会无法解释这场灾难，人们在恐惧中等待死亡。黑死病改变了欧洲社会结构，促进了文艺复兴的兴起。" },
+      { region: "中世纪欧洲", era: "圣女贞德", title: "百年战争", content: "英法百年战争期间，法国少女贞德声称得到上帝启示，带领法军击退英军，收复奥尔良等城市。她穿着男装，手持旗帜，鼓舞了法国人民的斗志。但后来贞德被勃艮第人俘获卖给英军，以异端罪被烧死。二十五年后，教皇为她平反，贞德成为法国民族英雄。" },
+      { region: "文艺复兴", era: "达芬奇", title: "艺术与科学", content: "列奥纳多·达芬奇是文艺复兴时期最伟大的艺术家和科学家。他画《蒙娜丽莎》和《最后的晚餐》，设计飞行器、潜水艇、坦克， 解剖人体绘制精确的解剖图。达芬奇相信艺术与科学必须结合，他用观察和实验的方法探索自然。他的笔记本从右写到左，需要镜子才能阅读，记录了他对世界的无限好奇。" },
+      { region: "文艺复兴", era: "哥伦布", title: "发现新大陆", content: "1492年，热那亚航海家哥伦布在西班牙女王伊莎贝拉支持下，率三艘帆船出发。他相信地球是圆的，向西航行可以到达东方。经过七十天的航行，哥伦布到达了美洲巴哈马群岛。他以为自己到了印度，称当地人为\"印第安人\"。此后，欧洲人开始了对美洲的殖民，给原住民带来了巨大灾难。" },
+      { region: "文艺复兴", era: "马丁路德", title: "宗教改革", content: "1517年，马丁·路德在德国维滕贝格教堂门口贴出《九十五条论纲》，批评罗马天主教销售赎罪券。他主张\"因信称义\"，认为人得救只需信仰上帝，不需要购买赎罪券。这一论点引发宗教改革运动，基督新教诞生。天主教会因此进行了反宗教改革，但基督教世界再也无法统一。" },
+      { region: "大航海时代", era: "麦哲伦", title: "环球航行", content: "1519年，葡萄牙航海家麦哲伦率五艘船270人出发，尝试环球航行。他穿越大西洋，绕过南美洲，进入太平洋。麦哲伦在菲律宾死于部落冲突，他的同伴继续航行，穿越印度洋，绕过非洲好望角，于1522年返回西班牙。这次航行证明了地球是圆的。" },
+      { region: "大航海时代", era: "奴隶贸易", title: "三角贸易", content: "欧洲殖民者在非洲抓捕黑人，卖到美洲种植园为奴，这就是可耻的奴隶贸易。商人从欧洲载货到非洲，换取黑奴，然后运到美洲贩卖，再把美洲的糖、棉花运回欧洲，这就是\"三角贸易\"。在三百多年里，约有一千万非洲人被卖到美洲，无数人在途中死亡或自杀。" },
+      { region: "英国崛起", era: "伊丽莎白", title: "黄金时代", content: "伊丽莎白一世统治英格兰四十五年，是英国历史上的黄金时代。她重用威廉·莎士比亚、弗朗西斯·培根等人才，击败西班牙无敌舰队，确立英国海权。英国探险家如德雷克、弗朗西斯·德雷克纷纷出海探索，在北美建立了殖民地。伊丽莎白终身未嫁，被尊称为\"童贞女王\"。" },
+      { region: "英国崛起", era: "牛顿", title: "科学革命", content: "艾萨克·牛顿是历史上最伟大的科学家之一。他在剑桥大学读书时，因躲避瘟疫回到家乡，在此期间发现了万有引力和三大运动定律。牛顿的《自然哲学的数学原理》是科学史上最重要的著作。他用三棱镜实验证明白光由七色光组成，奠定了现代光学基础。" },
+      { region: "美国独立", era: "华盛顿", title: "独立宣言", content: "1776年7月4日，美国独立宣言在费城通过，宣布十三州脱离英国独立。宣言起草人托马斯·杰斐逊写道：\"人人生而平等，造物主赋予他们若干不可剥夺的权利。\"乔治·华盛顿领导大陆军击败英军，成为美国第一任总统。他不当皇帝不当国王，建立了民主制度的典范。" },
+      { region: "美国独立", era: "林肯", title: "解放黑奴", content: "亚伯拉罕·林肯是美国第十六任总统。他领导北方赢得南北战争，废除奴隶制度，维护了国家统一。林肯在葛底斯堡演说中提出\"民有、民治、民享的政府\"理想，但他在战争结束五天后被刺杀。林肯的《解放宣言》永远结束了美国的奴隶制度，他的肖像印在美元和林肯纪念堂上。" },
+      { region: "法国大革命", era: "攻占巴士底", title: "自由平等", content: "1789年7月14日，法国人民攻占巴士底狱，法国大革命爆发。革命者以\"自由、平等、博爱\"为口号，废除封建特权，没收教会财产。但革命很快失控，雅各宾派以\"革命\"名义处死了数万人。罗伯斯庇尔最终也被送上自己设立的断头台。革命震动了整个欧洲。" },
+      { region: "法国大革命", era: "拿破仑", title: "帝国兴衰", content: "拿破仑·波拿巴是法国历史上最传奇的人物。他参加土伦战役，雾月政变夺权，颁布《拿破仑法典》，横扫欧洲建立法兰西第一帝国。但1812年远征俄国失败，1814年被迫退位。1815年百日王朝后，在滑铁卢被英普联军击败，再次退位。拿破仑被流放到圣赫勒拿岛，1821年去世。" },
+      { region: "工业革命", era: "瓦特", title: "蒸汽时代", content: "詹姆斯·瓦特改进了蒸汽机，使其效率大大提高。蒸汽机被用于纺织机、火车、轮船，人类进入蒸汽时代。1769年，瓦特的蒸汽机开始投入使用，推动了工业革命。英国因此成为\"世界工厂\"，曼彻斯特等城市成为工业中心。但工人工作条件恶劣，童工问题严重，引发了工人运动。" },
+      { region: "工业革命", era: "达尔文", title: "物种起源", content: "1859年，查尔斯·达尔文出版《物种起源》，提出进化论观点。他认为生物通过自然选择进化，最适应环境的物种得以存活。这一理论颠覆了宗教对人类起源的解释，在社会上引起巨大争议。达尔文乘贝格尔号军舰环球考察五年，收集了大量证据支持他的理论。" },
+      { region: "第一次世界大战", era: "萨拉热窝", title: "刺杀事件", content: "1914年6月28日，奥匈帝国皇储弗朗茨·斐迪南在萨拉热窝被塞尔维亚民族主义者普林西普刺杀。奥匈帝国向塞尔维亚宣战，欧洲各国纷纷卷入战争。第一次世界大战爆发，历时四年，三十多个国家参战，一千万人死亡。战争使用了大炮、毒气、坦克、飞机等新式武器。" },
+      { region: "第二次世界大战", era: "诺曼底", title: "D日登陆", content: "1944年6月6日，盟军在法国诺曼底海滩登陆，开辟第二战场。这是历史上最大规模的两栖登陆作战，十五万士兵在飞机和军舰掩护下冲上海滩。诺曼底登陆加速了纳粹德国的灭亡，最终盟军获胜，欧洲得到解放。艾森豪威尔将军指挥了这次行动。" },
+      { region: "第二次世界大战", era: "原子弹", title: "战争终结", content: "1945年，美国在日本广岛和长崎投下两颗原子弹，这是人类历史上唯一一次使用核武器。广岛约八万人当场死亡，长崎约四万人死亡。日本于8月15日宣布投降，第二次世界大战结束。原子弹的威力震惊世界，从此人类进入核时代，冷战随之开始。" }
+    ];
+
+    let currentIndex = 0;
+    let likedItems = new Set();
+
+    const cardsContainer = document.getElementById('cardsContainer');
+    const pageNum = document.getElementById('pageNum');
+    const playBtn = document.getElementById('playBtn');
+    const autoBtn = document.getElementById('autoBtn');
+    const likeBtn = document.getElementById('likeBtn');
+    let isAutoPlaying = false;
+
+    function init() {
+      const savedLikes = localStorage.getItem('likedHistoryWorld');
+      if (savedLikes) likedItems = new Set(JSON.parse(savedLikes));
+
+      createCards();
+      updatePageNum();
+      updateLikedUI();
+      bindEvents();
+    }
+
+    function createCards() {
+      cardsContainer.innerHTML = '';
+      historyData.forEach((item, idx) => {
+        const bgClass = 'bg-' + ((idx % 16) + 1);
+        const card = document.createElement('div');
+        card.className = 'history-card ' + bgClass;
+        card.id = 'card-' + idx;
+
+        card.innerHTML = '<div class="region-tag">' + item.region + '</div>' +
+          '<div class="era-title">' + item.era + '</div>' +
+          '<div class="story-title">' + item.title + '</div>' +
+          '<div class="story-content">' + item.content + '</div>';
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    function updatePageNum() {
+      pageNum.textContent = (currentIndex + 1) + '/' + historyData.length;
+    }
+
+    function goToCard(index) {
+      const card = document.getElementById('card-' + index);
+      if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+      updatePageNum();
+      updateLikedUI();
+    }
+
+    function updateLikedUI() {
+      if (likedItems.has(currentIndex + 1)) {
+        likeBtn.classList.add('liked');
+      } else {
+        likeBtn.classList.remove('liked');
+      }
+    }
+
+    let currentAudio = null;
+
+    function speakContent() {
+      if (currentAudio) {
+        currentAudio.pause();
+        URL.revokeObjectURL(currentAudio.src);
+        currentAudio = null;
+        isAutoPlaying = false;
+        autoBtn.classList.remove('active');
+        autoBtn.textContent = '自动播放';
+        playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+        return;
+      }
+
+      playBtn.disabled = true;
+      playBtn.textContent = '请稍候';
+
+      const item = historyData[currentIndex];
+      const text = item.region + '，' + item.era + '，' + item.title + '。' + item.content;
+
+      fetch('http://1.14.99.150:6006/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          voice: 'zh-CN-XiaoxiaoNeural',
+          rate: '+0%',
+          pitch: '+0Hz'
+        })
+      })
+      .then(res => res.blob())
+      .then(blob => {
+        const audio = new Audio(URL.createObjectURL(blob));
+        audio.play();
+        currentAudio = audio;
+        playBtn.disabled = false;
+        playBtn.textContent = '停止';
+
+        audio.onended = () => {
+          URL.revokeObjectURL(audio.src);
+          currentAudio = null;
+          playBtn.textContent = '朗读';
+
+          if (isAutoPlaying && currentIndex < historyData.length - 1) {
+            currentIndex++;
+            goToCard(currentIndex);
+            speakContent();
+          } else if (isAutoPlaying) {
+            isAutoPlaying = false;
+            autoBtn.classList.remove('active');
+            autoBtn.textContent = '自动播放';
+            playBtn.disabled = false;
+          }
+        };
+      })
+      .catch(err => {
+        console.error('TTS error:', err);
+        currentAudio = null;
+        playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+      });
+    }
+
+    function toggleAutoPlay() {
+      if (currentAudio) {
+        currentAudio.pause();
+        URL.revokeObjectURL(currentAudio.src);
+        currentAudio = null;
+      }
+      isAutoPlaying = !isAutoPlaying;
+      autoBtn.classList.toggle('active', isAutoPlaying);
+      autoBtn.textContent = isAutoPlaying ? '停止自动' : '自动播放';
+
+      if (isAutoPlaying) {
+        playBtn.disabled = true;
+        playBtn.textContent = '请稍候';
+        autoBtn.disabled = true;
+        speakContent();
+      } else {
+        playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+        autoBtn.disabled = false;
+      }
+    }
+
+    function toggleLike() {
+      const itemId = currentIndex + 1;
+      if (likedItems.has(itemId)) {
+        likedItems.delete(itemId);
+      } else {
+        likedItems.add(itemId);
+      }
+      localStorage.setItem('likedHistoryWorld', JSON.stringify([...likedItems]));
+      updateLikedUI();
+    }
+
+    function bindEvents() {
+      playBtn.addEventListener('click', speakContent);
+      autoBtn.addEventListener('click', toggleAutoPlay);
+      likeBtn.addEventListener('click', toggleLike);
+
+      let scrollTimeout;
+      cardsContainer.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const width = cardsContainer.offsetWidth;
+          currentIndex = Math.round(cardsContainer.scrollLeft / width);
+          updatePageNum();
+          updateLikedUI();
+        }, 100);
+      }, { passive: true });
+    }
+
+    init();
+  </script>
+</body>
+</html>
