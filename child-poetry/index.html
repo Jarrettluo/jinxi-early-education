@@ -296,21 +296,22 @@
     }
 
     let currentAudio = null;
-    let isPlaying = false;
 
     function speakPoem() {
       if (currentAudio) {
         currentAudio.pause();
         URL.revokeObjectURL(currentAudio.src);
         currentAudio = null;
-        isPlaying = false;
         isAutoPlaying = false;
         autoBtn.classList.remove('active');
         autoBtn.textContent = '自动播放';
         playBtn.disabled = false;
-        playBtn.textContent = '🔊';
+        playBtn.textContent = '朗读';
         return;
       }
+
+      playBtn.disabled = true;
+      playBtn.textContent = '请稍候';
 
       const poem = poems[currentIndex];
       const text = poem.title + '，' + poem.author + '。' + poem.content;
@@ -330,13 +331,13 @@
         const audio = new Audio(URL.createObjectURL(blob));
         audio.play();
         currentAudio = audio;
-        playBtn.textContent = '⏸';
+        playBtn.disabled = false;
+        playBtn.textContent = '停止';
 
         audio.onended = () => {
           URL.revokeObjectURL(audio.src);
           currentAudio = null;
-          isPlaying = false;
-          playBtn.textContent = isAutoPlaying ? '播放中' : '🔊';
+          playBtn.textContent = '朗读';
 
           if (isAutoPlaying && currentIndex < poems.length - 1) {
             currentIndex++;
@@ -347,22 +348,20 @@
             autoBtn.classList.remove('active');
             autoBtn.textContent = '自动播放';
             playBtn.disabled = false;
-            playBtn.textContent = '🔊';
           }
         };
       })
       .catch(err => {
         console.error('TTS error:', err);
         currentAudio = null;
-        isPlaying = false;
-        isAutoPlaying = false;
-        autoBtn.classList.remove('active');
-        autoBtn.textContent = '自动播放';
         playBtn.disabled = false;
-        playBtn.textContent = '🔊';
+        playBtn.textContent = '朗读';
+        if (!isAutoPlaying) {
+          isAutoPlaying = false;
+          autoBtn.classList.remove('active');
+          autoBtn.textContent = '自动播放';
+        }
       });
-
-      isPlaying = true;
     }
 
     function toggleAutoPlay() {
@@ -374,15 +373,16 @@
       isAutoPlaying = !isAutoPlaying;
       autoBtn.classList.toggle('active', isAutoPlaying);
       autoBtn.textContent = isAutoPlaying ? '停止自动' : '自动播放';
-      isPlaying = false;
-      playBtn.textContent = '🔊';
 
       if (isAutoPlaying) {
         playBtn.disabled = true;
-        playBtn.textContent = '播放中';
+        playBtn.textContent = '请稍候';
+        autoBtn.disabled = true;
         speakPoem();
       } else {
         playBtn.disabled = false;
+        playBtn.textContent = '朗读';
+        autoBtn.disabled = false;
       }
     }
     

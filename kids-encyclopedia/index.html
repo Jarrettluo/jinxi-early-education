@@ -227,7 +227,6 @@ if (currentAudio.src.startsWith('blob:')) {
 URL.revokeObjectURL(currentAudio.src);
 }
 currentAudio = null;
-isPlaying = false;
 isAutoPlaying = false;
 autoBtn.classList.remove('active');
 autoBtn.textContent = '自动播放';
@@ -235,6 +234,8 @@ playBtn.disabled = false;
 playBtn.textContent = '朗读';
 return;
 }
+playBtn.disabled = true;
+playBtn.textContent = '请稍候';
 var story = filteredData[currentIndex];
 var text = story.title + '。' + story.content;
 fetch('http://1.14.99.150:6006/tts', {
@@ -252,15 +253,15 @@ pitch: '+0Hz'
 var audio = new Audio(URL.createObjectURL(blob));
 audio.play();
 currentAudio = audio;
-playBtn.textContent = '播放中';
+playBtn.disabled = false;
+playBtn.textContent = '停止';
 
 audio.onended = function() {
 if (audio.src.startsWith('blob:')) {
 URL.revokeObjectURL(audio.src);
 }
 currentAudio = null;
-isPlaying = false;
-playBtn.textContent = isAutoPlaying ? '播放中' : '朗读';
+playBtn.textContent = '朗读';
 
 if (isAutoPlaying && currentIndex < filteredData.length - 1) {
 currentIndex++;
@@ -273,21 +274,18 @@ isAutoPlaying = false;
 autoBtn.classList.remove('active');
 autoBtn.textContent = '自动播放';
 playBtn.disabled = false;
-playBtn.textContent = '朗读';
 }
 };
 })
 .catch(function(err) {
 console.error('TTS error:', err);
 currentAudio = null;
-isPlaying = false;
 isAutoPlaying = false;
 autoBtn.classList.remove('active');
 autoBtn.textContent = '自动播放';
 playBtn.disabled = false;
 playBtn.textContent = '朗读';
 });
-isPlaying = true;
 }
 function toggleAutoPlay() {
 if (currentAudio) {
@@ -300,15 +298,16 @@ currentAudio = null;
 isAutoPlaying = !isAutoPlaying;
 autoBtn.classList.toggle('active', isAutoPlaying);
 autoBtn.textContent = isAutoPlaying ? '停止自动' : '自动播放';
-isPlaying = false;
-playBtn.textContent = '朗读';
 
 if (isAutoPlaying) {
 playBtn.disabled = true;
-playBtn.textContent = '播放中';
+playBtn.textContent = '请稍候';
+autoBtn.disabled = true;
 speakStory();
 } else {
 playBtn.disabled = false;
+playBtn.textContent = '朗读';
+autoBtn.disabled = false;
 }
 }
 function toggleLike() {
